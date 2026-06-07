@@ -65,6 +65,11 @@ async function handleDelete() {
   })
 }
 
+async function handleCopyUrl(url: string) {
+  await navigator.clipboard.writeText(url)
+  message.success(t('keys.copySuccess'))
+}
+
 function handleBack() {
   router.push('/keys')
 }
@@ -120,8 +125,23 @@ function formatDate(dateStr: string | null): string {
             </span>
             <span v-else>{{ apiKey.provider_display_name }}</span>
           </n-descriptions-item>
-          <n-descriptions-item :label="$t('keyDetail.baseUrl')" v-if="provider">
-            <code>{{ provider.base_url || '—' }}</code>
+          <n-descriptions-item :label="$t('keyDetail.openaiBaseUrl')">
+            <div class="url-row" v-if="apiKey.openai_base_url">
+              <code>{{ apiKey.openai_base_url }}</code>
+              <n-button quaternary size="tiny" @click="handleCopyUrl(apiKey.openai_base_url!)">
+                <template #icon><n-icon :component="CopyOutline" /></template>
+              </n-button>
+            </div>
+            <span v-else>—</span>
+          </n-descriptions-item>
+          <n-descriptions-item :label="$t('keyDetail.anthropicBaseUrl')">
+            <div class="url-row" v-if="apiKey.anthropic_base_url">
+              <code>{{ apiKey.anthropic_base_url }}</code>
+              <n-button quaternary size="tiny" @click="handleCopyUrl(apiKey.anthropic_base_url!)">
+                <template #icon><n-icon :component="CopyOutline" /></template>
+              </n-button>
+            </div>
+            <span v-else>—</span>
           </n-descriptions-item>
           <n-descriptions-item :label="$t('keyDetail.description')">
             {{ apiKey.description || $t('keyDetail.noDescription') }}
@@ -202,5 +222,11 @@ code {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.url-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 </style>

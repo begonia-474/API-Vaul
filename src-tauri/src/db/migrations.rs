@@ -37,6 +37,7 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (4, "migrate_add_provider_presets", migrate_add_provider_presets),
         (5, "seed_providers", seed_providers),
         (6, "seed_settings", seed_settings),
+        (7, "migrate_split_base_url", migrate_split_base_url),
     ];
 
     let current = current_version(conn);
@@ -242,6 +243,35 @@ fn seed_missing_providers(conn: &Connection) -> Result<(), Box<dyn std::error::E
             ),
             rusqlite::params![new_value, name],
         );
+    }
+
+    Ok(())
+}
+
+fn migrate_split_base_url(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    let mut existing_columns = std::collections::HashSet::new();
+    {
+        let mut stmt = conn.prepare("PRAGMA table_info(api_keys)").map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+        let mut rows = stmt.query([]).map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+        while let Some(row) = rows.next().map_err(|e| Box::<dyn std::error::Error>::from(e))? {
+            let column_name: String = row.get(1).map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+            existing_columns.insert(column_name);
+        }
+    }
+
+    if !existing_columns.contains("openai_base_url") {
+        conn.execute("ALTER TABLE api_keys ADD COLUMN openai_base_url TEXT", [])?;
+    }
+    if !existing_columns.contains("anthropic_base_url") {
+        conn.execute("ALTER TABLE api_keys ADD COLUMN anthropic_base_url TEXT", [])?;
+    }
+
+    // Migrate existing base_url data to openai_base_url
+    if existing_columns.contains("base_url") {
+        conn.execute(
+            "UPDATE api_keys SET openai_base_url = base_url WHERE base_url IS NOT NULL AND base_url != '' AND (openai_base_url IS NULL OR openai_base_url = '')",
+            [],
+        )?;
     }
 
     Ok(())

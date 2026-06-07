@@ -3,32 +3,36 @@ use crate::db::connection::Database;
 use crate::error::AppError;
 use crate::models::api_key::{ApiKey, ApiKeyView, NewApiKey, UpdateApiKey};
 
+const SELECT_VIEW_COLS: &str =
+    "k.id, k.provider_id, p.name, p.display_name, k.name, k.masked_preview, k.description, k.openai_base_url, k.anthropic_base_url, k.created_at, k.updated_at";
+
+fn row_to_view(row: &rusqlite::Row) -> rusqlite::Result<ApiKeyView> {
+    Ok(ApiKeyView {
+        id: row.get(0)?,
+        provider_id: row.get(1)?,
+        provider_name: row.get(2)?,
+        provider_display_name: row.get(3)?,
+        name: row.get(4)?,
+        masked_preview: row.get(5)?,
+        description: row.get(6)?,
+        openai_base_url: row.get(7)?,
+        anthropic_base_url: row.get(8)?,
+        created_at: row.get(9)?,
+        updated_at: row.get(10)?,
+    })
+}
+
 pub fn get_all_keys(db: &Database) -> Result<Vec<ApiKeyView>, AppError> {
     let conn = db.conn.lock().unwrap();
     let mut stmt = conn
-        .prepare(
-            "SELECT k.id, k.provider_id, p.name, p.display_name, k.name, k.masked_preview, k.description, k.base_url, k.created_at, k.updated_at
-             FROM api_keys k
-             JOIN providers p ON k.provider_id = p.id
-             ORDER BY k.updated_at DESC",
-        )
+        .prepare(&format!(
+            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id ORDER BY k.updated_at DESC",
+            SELECT_VIEW_COLS,
+        ))
         .map_err(AppError::Database)?;
 
     let rows = stmt
-        .query_map([], |row| {
-            Ok(ApiKeyView {
-                id: row.get(0)?,
-                provider_id: row.get(1)?,
-                provider_name: row.get(2)?,
-                provider_display_name: row.get(3)?,
-                name: row.get(4)?,
-                masked_preview: row.get(5)?,
-                description: row.get(6)?,
-                base_url: row.get(7)?,
-                created_at: row.get(8)?,
-                updated_at: row.get(9)?,
-            })
-        })
+        .query_map([], row_to_view)
         .map_err(AppError::Database)?;
 
     let mut keys = Vec::new();
@@ -43,30 +47,14 @@ pub fn search_keys(db: &Database, query: &str) -> Result<Vec<ApiKeyView>, AppErr
     let conn = db.conn.lock().unwrap();
     let search_pattern = format!("%{}%", query);
     let mut stmt = conn
-        .prepare(
-            "SELECT k.id, k.provider_id, p.name, p.display_name, k.name, k.masked_preview, k.description, k.base_url, k.created_at, k.updated_at
-             FROM api_keys k
-             JOIN providers p ON k.provider_id = p.id
-             WHERE k.name LIKE ?1 OR p.display_name LIKE ?1 OR k.description LIKE ?1 OR p.name LIKE ?1
-             ORDER BY k.updated_at DESC",
-        )
+        .prepare(&format!(
+            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.name LIKE ?1 OR p.display_name LIKE ?1 OR k.description LIKE ?1 OR p.name LIKE ?1 ORDER BY k.updated_at DESC",
+            SELECT_VIEW_COLS,
+        ))
         .map_err(AppError::Database)?;
 
     let rows = stmt
-        .query_map([&search_pattern], |row| {
-            Ok(ApiKeyView {
-                id: row.get(0)?,
-                provider_id: row.get(1)?,
-                provider_name: row.get(2)?,
-                provider_display_name: row.get(3)?,
-                name: row.get(4)?,
-                masked_preview: row.get(5)?,
-                description: row.get(6)?,
-                base_url: row.get(7)?,
-                created_at: row.get(8)?,
-                updated_at: row.get(9)?,
-            })
-        })
+        .query_map([&search_pattern], row_to_view)
         .map_err(AppError::Database)?;
 
     let mut keys = Vec::new();
@@ -87,7 +75,7 @@ pub fn create_key(
 
     let conn = db.conn.lock().unwrap();
     conn.execute(
-        "INSERT INTO api_keys (provider_id, name, encrypted_key, iv, masked_preview, description, base_url) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        "INSERT INTO api_keys (provider_id, name, encrypted_key, iv, masked_preview, description, openai_base_url, anthropic_base_url) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
         rusqlite::params![
             new_key.provider_id,
             new_key.name,
@@ -95,7 +83,8 @@ pub fn create_key(
             iv,
             masked,
             new_key.description,
-            new_key.base_url,
+            new_key.openai_base_url,
+            new_key.anthropic_base_url,
         ],
     )
     .map_err(AppError::Database)?;
@@ -103,29 +92,14 @@ pub fn create_key(
     let id = conn.last_insert_rowid();
 
     let mut stmt = conn
-        .prepare(
-            "SELECT k.id, k.provider_id, p.name, p.display_name, k.name, k.masked_preview, k.description, k.base_url, k.created_at, k.updated_at
-             FROM api_keys k
-             JOIN providers p ON k.provider_id = p.id
-             WHERE k.id = ?1",
-        )
+        .prepare(&format!(
+            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.id = ?1",
+            SELECT_VIEW_COLS,
+        ))
         .map_err(AppError::Database)?;
 
     let key = stmt
-        .query_row([id], |row| {
-            Ok(ApiKeyView {
-                id: row.get(0)?,
-                provider_id: row.get(1)?,
-                provider_name: row.get(2)?,
-                provider_display_name: row.get(3)?,
-                name: row.get(4)?,
-                masked_preview: row.get(5)?,
-                description: row.get(6)?,
-                base_url: row.get(7)?,
-                created_at: row.get(8)?,
-                updated_at: row.get(9)?,
-            })
-        })
+        .query_row([id], row_to_view)
         .map_err(AppError::Database)?;
 
     Ok(key)
@@ -142,7 +116,7 @@ pub fn update_key(
         let (ciphertext, iv) = aes::encrypt(enc_key, raw_key.as_bytes())?;
         let masked = aes::mask_api_key(raw_key);
         conn.execute(
-            "UPDATE api_keys SET provider_id = ?1, name = ?2, encrypted_key = ?3, iv = ?4, masked_preview = ?5, description = ?6, base_url = ?7, updated_at = datetime('now') WHERE id = ?8",
+            "UPDATE api_keys SET provider_id = ?1, name = ?2, encrypted_key = ?3, iv = ?4, masked_preview = ?5, description = ?6, openai_base_url = ?7, anthropic_base_url = ?8, updated_at = datetime('now') WHERE id = ?9",
             rusqlite::params![
                 update.provider_id,
                 update.name,
@@ -150,19 +124,21 @@ pub fn update_key(
                 iv,
                 masked,
                 update.description,
-                update.base_url,
+                update.openai_base_url,
+                update.anthropic_base_url,
                 update.id,
             ],
         )
         .map_err(AppError::Database)?;
     } else {
         conn.execute(
-            "UPDATE api_keys SET provider_id = ?1, name = ?2, description = ?3, base_url = ?4, updated_at = datetime('now') WHERE id = ?5",
+            "UPDATE api_keys SET provider_id = ?1, name = ?2, description = ?3, openai_base_url = ?4, anthropic_base_url = ?5, updated_at = datetime('now') WHERE id = ?6",
             rusqlite::params![
                 update.provider_id,
                 update.name,
                 update.description,
-                update.base_url,
+                update.openai_base_url,
+                update.anthropic_base_url,
                 update.id,
             ],
         )
@@ -171,25 +147,12 @@ pub fn update_key(
 
     let key = conn
         .query_row(
-            "SELECT k.id, k.provider_id, p.name, p.display_name, k.name, k.masked_preview, k.description, k.base_url, k.created_at, k.updated_at
-             FROM api_keys k
-             JOIN providers p ON k.provider_id = p.id
-             WHERE k.id = ?1",
+            &format!(
+                "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.id = ?1",
+                SELECT_VIEW_COLS,
+            ),
             [update.id],
-            |row| {
-                Ok(ApiKeyView {
-                    id: row.get(0)?,
-                    provider_id: row.get(1)?,
-                    provider_name: row.get(2)?,
-                    provider_display_name: row.get(3)?,
-                    name: row.get(4)?,
-                    masked_preview: row.get(5)?,
-                    description: row.get(6)?,
-                    base_url: row.get(7)?,
-                    created_at: row.get(8)?,
-                    updated_at: row.get(9)?,
-                })
-            },
+            row_to_view,
         )
         .map_err(AppError::Database)?;
 
@@ -240,7 +203,7 @@ pub fn get_decrypted_key(
 pub fn get_key_by_id(db: &Database, id: i64) -> Result<ApiKey, AppError> {
     let conn = db.conn.lock().unwrap();
     let key = conn.query_row(
-        "SELECT id, provider_id, name, encrypted_key, iv, masked_preview, description, base_url, created_at, updated_at FROM api_keys WHERE id = ?1",
+        "SELECT id, provider_id, name, encrypted_key, iv, masked_preview, description, openai_base_url, anthropic_base_url, created_at, updated_at FROM api_keys WHERE id = ?1",
         [id],
         |row| {
             Ok(ApiKey {
@@ -251,9 +214,10 @@ pub fn get_key_by_id(db: &Database, id: i64) -> Result<ApiKey, AppError> {
                 iv: row.get(4)?,
                 masked_preview: row.get(5)?,
                 description: row.get(6)?,
-                base_url: row.get(7)?,
-                created_at: row.get(8)?,
-                updated_at: row.get(9)?,
+                openai_base_url: row.get(7)?,
+                anthropic_base_url: row.get(8)?,
+                created_at: row.get(9)?,
+                updated_at: row.get(10)?,
             })
         },
     ).map_err(|e| match e {

@@ -27,7 +27,8 @@ const form = ref({
   raw_key: '',
   provider_id: null as number | null,
   description: '',
-  base_url: '',
+  openai_base_url: '',
+  anthropic_base_url: '',
 })
 
 const submitting = ref(false)
@@ -52,10 +53,11 @@ watch(
           raw_key: '',
           provider_id: props.editKey.provider_id,
           description: props.editKey.description ?? '',
-          base_url: props.editKey.base_url ?? '',
+          openai_base_url: props.editKey.openai_base_url ?? '',
+          anthropic_base_url: props.editKey.anthropic_base_url ?? '',
         }
       } else {
-        form.value = { name: '', raw_key: '', provider_id: null, description: '', base_url: '' }
+        form.value = { name: '', raw_key: '', provider_id: null, description: '', openai_base_url: '', anthropic_base_url: '' }
       }
     }
   },
@@ -92,7 +94,8 @@ async function handleSubmit() {
         name: form.value.name,
         raw_key: form.value.raw_key || undefined,
         description: form.value.description || undefined,
-        base_url: form.value.base_url || undefined,
+        openai_base_url: form.value.openai_base_url || undefined,
+        anthropic_base_url: form.value.anthropic_base_url || undefined,
       })
     } else {
       await apiKeysStore.createKey({
@@ -100,7 +103,8 @@ async function handleSubmit() {
         name: form.value.name,
         raw_key: form.value.raw_key,
         description: form.value.description || undefined,
-        base_url: form.value.base_url || undefined,
+        openai_base_url: form.value.openai_base_url || undefined,
+        anthropic_base_url: form.value.anthropic_base_url || undefined,
       })
     }
 
@@ -141,8 +145,11 @@ async function handleSubmit() {
           :placeholder="editKey ? t('keyForm.apiKeyEditPlaceholder') : t('keyForm.apiKeyPlaceholder')"
         />
       </n-form-item>
-      <n-form-item :label="t('keyDetail.baseUrl')">
-        <n-input v-model:value="form.base_url" placeholder="https://api.example.com/v1" />
+      <n-form-item :label="t('keyForm.openaiBaseUrl')">
+        <n-input v-model:value="form.openai_base_url" :placeholder="t('keyForm.openaiBaseUrlPlaceholder')" />
+      </n-form-item>
+      <n-form-item :label="t('keyForm.anthropicBaseUrl')">
+        <n-input v-model:value="form.anthropic_base_url" :placeholder="t('keyForm.anthropicBaseUrlPlaceholder')" />
       </n-form-item>
       <n-form-item :label="t('keyForm.notes')">
         <n-input

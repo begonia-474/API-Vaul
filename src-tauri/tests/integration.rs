@@ -43,14 +43,15 @@ fn test_create_and_get_key() {
         name: "Test Key".to_string(),
         raw_key: "sk-test12345678901234".to_string(),
         description: Some("A test key".to_string()),
-        base_url: Some("https://api.openai.com/v1".to_string()),
+        openai_base_url: Some("https://api.openai.com/v1".to_string()),
+        anthropic_base_url: None,
     };
 
     let created = key_service::create_key(&db, &enc, &new_key).unwrap();
     assert_eq!(created.name, "Test Key");
     assert_eq!(created.provider_name, "openai");
     assert!(created.masked_preview.contains("sk-t"));
-    assert_eq!(created.base_url.as_deref(), Some("https://api.openai.com/v1"));
+    assert_eq!(created.openai_base_url.as_deref(), Some("https://api.openai.com/v1"));
 }
 
 #[test]
@@ -66,7 +67,8 @@ fn test_search_keys() {
         name: "Production Key".to_string(),
         raw_key: "sk-prod12345678901234".to_string(),
         description: Some("Main production key".to_string()),
-        base_url: Some("https://api.openai.com/v1".to_string()),
+        openai_base_url: Some("https://api.openai.com/v1".to_string()),
+        anthropic_base_url: None,
     }).unwrap();
 
     key_service::create_key(&db, &enc, &NewApiKey {
@@ -74,7 +76,8 @@ fn test_search_keys() {
         name: "Dev Key".to_string(),
         raw_key: "sk-dev123456789012345".to_string(),
         description: Some("Development key".to_string()),
-        base_url: None,
+        openai_base_url: None,
+        anthropic_base_url: None,
     }).unwrap();
 
     // Search by name
@@ -104,7 +107,8 @@ fn test_update_key() {
         name: "Original".to_string(),
         raw_key: "sk-original1234567890".to_string(),
         description: None,
-        base_url: None,
+        openai_base_url: None,
+        anthropic_base_url: None,
     }).unwrap();
 
     let updated = key_service::update_key(&db, &enc, &UpdateApiKey {
@@ -113,12 +117,14 @@ fn test_update_key() {
         name: "Renamed".to_string(),
         raw_key: None,
         description: Some("Updated desc".to_string()),
-        base_url: Some("https://api.openai.com/v1".to_string()),
+        openai_base_url: Some("https://api.openai.com/v1".to_string()),
+        anthropic_base_url: Some("https://api.anthropic.com/v1".to_string()),
     }).unwrap();
 
     assert_eq!(updated.name, "Renamed");
     assert_eq!(updated.description, Some("Updated desc".to_string()));
-    assert_eq!(updated.base_url.as_deref(), Some("https://api.openai.com/v1"));
+    assert_eq!(updated.openai_base_url.as_deref(), Some("https://api.openai.com/v1"));
+    assert_eq!(updated.anthropic_base_url.as_deref(), Some("https://api.anthropic.com/v1"));
 }
 
 #[test]
@@ -134,7 +140,8 @@ fn test_delete_key() {
         name: "To Delete".to_string(),
         raw_key: "sk-delete1234567890".to_string(),
         description: None,
-        base_url: None,
+        openai_base_url: None,
+        anthropic_base_url: None,
     }).unwrap();
 
     key_service::delete_key(&db, created.id).unwrap();
@@ -157,7 +164,8 @@ fn test_decrypt_key() {
         name: "Decrypt Test".to_string(),
         raw_key: raw.to_string(),
         description: None,
-        base_url: None,
+        openai_base_url: None,
+        anthropic_base_url: None,
     }).unwrap();
 
     let decrypted = key_service::get_decrypted_key(&db, &enc, created.id).unwrap();

@@ -20,7 +20,8 @@ const mockKeys: ApiKeyView[] = [
     name: 'Test Key 1',
     masked_preview: 'sk-a****1234',
     description: 'Test desc',
-    base_url: 'https://api.openai.com/v1',
+    openai_base_url: 'https://api.openai.com/v1',
+    anthropic_base_url: null,
     created_at: '2026-01-01',
     updated_at: '2026-01-01',
   },
@@ -32,7 +33,8 @@ const mockKeys: ApiKeyView[] = [
     name: 'Test Key 2',
     masked_preview: 'sk-a****5678',
     description: null,
-    base_url: null,
+    openai_base_url: null,
+    anthropic_base_url: null,
     created_at: '2026-01-02',
     updated_at: '2026-01-02',
   },
@@ -75,7 +77,8 @@ describe('apiKeys store', () => {
       name: 'New Key',
       raw_key: 'sk-new1234567890',
       description: 'desc',
-      base_url: 'https://api.openai.com/v1',
+      openai_base_url: 'https://api.openai.com/v1',
+      anthropic_base_url: 'https://api.anthropic.com/v1',
     })
 
     expect(result).toBe(true)
@@ -85,7 +88,8 @@ describe('apiKeys store', () => {
         name: 'New Key',
         raw_key: 'sk-new1234567890',
         description: 'desc',
-        base_url: 'https://api.openai.com/v1',
+        openai_base_url: 'https://api.openai.com/v1',
+        anthropic_base_url: 'https://api.anthropic.com/v1',
       },
     })
   })
@@ -102,7 +106,8 @@ describe('apiKeys store', () => {
       name: 'Updated',
       raw_key: undefined,
       description: 'desc',
-      base_url: 'https://api.openai.com/v1',
+      openai_base_url: 'https://api.openai.com/v1',
+      anthropic_base_url: 'https://api.anthropic.com/v1',
     })
 
     expect(result).toBe(true)
@@ -113,7 +118,8 @@ describe('apiKeys store', () => {
         name: 'Updated',
         raw_key: undefined,
         description: 'desc',
-        base_url: 'https://api.openai.com/v1',
+        openai_base_url: 'https://api.openai.com/v1',
+        anthropic_base_url: 'https://api.anthropic.com/v1',
       },
     })
   })

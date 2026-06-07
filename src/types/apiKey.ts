@@ -4,7 +4,8 @@ export interface ApiKey {
   name: string
   masked_preview: string
   description: string | null
-  base_url: string | null
+  openai_base_url: string | null
+  anthropic_base_url: string | null
   created_at: string
   updated_at: string
 }
@@ -17,7 +18,8 @@ export interface ApiKeyView {
   name: string
   masked_preview: string
   description: string | null
-  base_url: string | null
+  openai_base_url: string | null
+  anthropic_base_url: string | null
   created_at: string
   updated_at: string
 }
@@ -27,7 +29,8 @@ export interface CreateKeyInput {
   name: string
   raw_key: string
   description?: string
-  base_url?: string
+  openai_base_url?: string
+  anthropic_base_url?: string
 }
 
 export interface UpdateKeyInput {
@@ -36,5 +39,6 @@ export interface UpdateKeyInput {
   name: string
   raw_key?: string
   description?: string
-  base_url?: string
+  openai_base_url?: string
+  anthropic_base_url?: string
 }

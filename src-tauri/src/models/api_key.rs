@@ -1,4 +1,4 @@
-﻿use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApiKey {
@@ -9,7 +9,8 @@ pub struct ApiKey {
     pub iv: Vec<u8>,
     pub masked_preview: String,
     pub description: Option<String>,
-    pub base_url: Option<String>,
+    pub openai_base_url: Option<String>,
+    pub anthropic_base_url: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -23,7 +24,8 @@ pub struct ApiKeyView {
     pub name: String,
     pub masked_preview: String,
     pub description: Option<String>,
-    pub base_url: Option<String>,
+    pub openai_base_url: Option<String>,
+    pub anthropic_base_url: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -34,7 +36,8 @@ pub struct NewApiKey {
     pub name: String,
     pub raw_key: String,
     pub description: Option<String>,
-    pub base_url: Option<String>,
+    pub openai_base_url: Option<String>,
+    pub anthropic_base_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,5 +47,6 @@ pub struct UpdateApiKey {
     pub name: String,
     pub raw_key: Option<String>,
     pub description: Option<String>,
-    pub base_url: Option<String>,
+    pub openai_base_url: Option<String>,
+    pub anthropic_base_url: Option<String>,
 }
