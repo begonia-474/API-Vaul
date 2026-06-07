@@ -1,0 +1,184 @@
+[
+  {
+    "presetId": "openai",
+    "name": "OpenAI",
+    "category": "official",
+    "icon": "🤖",
+    "iconColor": "#10A37F",
+    "websiteUrl": "https://openai.com",
+    "apiKeyUrl": "https://platform.openai.com/api-keys",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://api.openai.com/v1" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "anthropic",
+    "name": "Anthropic",
+    "category": "official",
+    "icon": "🟠",
+    "iconColor": "#D97757",
+    "websiteUrl": "https://www.anthropic.com",
+    "apiKeyUrl": "https://console.anthropic.com/",
+    "defaultCompatType": "anthropic_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "https://api.anthropic.com" }
+    }
+  },
+  {
+    "presetId": "google_gemini",
+    "name": "Google Gemini",
+    "category": "official",
+    "icon": "🔵",
+    "iconColor": "#4285F4",
+    "websiteUrl": "https://gemini.google.com",
+    "apiKeyUrl": "https://aistudio.google.com/apikey",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "deepseek",
+    "name": "DeepSeek",
+    "category": "cn_official",
+    "icon": "🐋",
+    "iconColor": "#4D6BFE",
+    "websiteUrl": "https://www.deepseek.com",
+    "apiKeyUrl": "https://platform.deepseek.com",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://api.deepseek.com/v1" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "moonshot_kimi",
+    "name": "Moonshot / Kimi",
+    "category": "cn_official",
+    "icon": "🌙",
+    "iconColor": "#6366F1",
+    "websiteUrl": "https://www.moonshot.cn",
+    "apiKeyUrl": "https://platform.moonshot.cn",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://api.moonshot.cn/v1" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "zhipu",
+    "name": "Zhipu",
+    "category": "cn_official",
+    "icon": "🟣",
+    "iconColor": "#0F62FE",
+    "websiteUrl": "https://www.zhipuai.cn",
+    "apiKeyUrl": "https://open.bigmodel.cn",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://open.bigmodel.cn/api/paas/v4" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "minimax",
+    "name": "MiniMax",
+    "category": "cn_official",
+    "icon": "🟢",
+    "iconColor": "#FF6B6B",
+    "websiteUrl": "https://www.minimaxi.com",
+    "apiKeyUrl": "https://platform.minimaxi.com",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://api.minimax.chat/v1" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "baidu",
+    "name": "Baidu",
+    "category": "cn_official",
+    "icon": "🔴",
+    "iconColor": "#2932E1",
+    "websiteUrl": "https://www.baidu.com",
+    "apiKeyUrl": "https://cloud.baidu.com",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "alibaba_dashscope",
+    "name": "Alibaba DashScope",
+    "category": "cn_official",
+    "icon": "☁️",
+    "iconColor": "#FF6A00",
+    "websiteUrl": "https://www.aliyun.com",
+    "apiKeyUrl": "https://dashscope.aliyun.com",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://dashscope.aliyuncs.com/compatible-mode/v1" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "tencent_hunyuan",
+    "name": "Tencent Hunyuan",
+    "category": "cn_official",
+    "icon": "💧",
+    "iconColor": "#00A4FF",
+    "websiteUrl": "https://www.tencent.com",
+    "apiKeyUrl": "https://cloud.tencent.com",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "volcengine_ark",
+    "name": "Volcengine Ark",
+    "category": "cn_official",
+    "icon": "🔥",
+    "iconColor": "#3370FF",
+    "websiteUrl": "https://www.volcengine.com",
+    "apiKeyUrl": "https://console.volcengine.com",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://ark.cn-beijing.volces.com/api/coding/v3" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "openrouter",
+    "name": "OpenRouter",
+    "category": "aggregator",
+    "icon": "🌐",
+    "iconColor": "#6566F1",
+    "websiteUrl": "https://openrouter.ai",
+    "apiKeyUrl": "https://openrouter.ai/keys",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "https://openrouter.ai/api/v1" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  },
+  {
+    "presetId": "dify",
+    "name": "Dify",
+    "category": "third_party",
+    "icon": "🧩",
+    "iconColor": "#111827",
+    "websiteUrl": "https://dify.ai",
+    "apiKeyUrl": "https://cloud.dify.ai",
+    "defaultCompatType": "openai_compatible",
+    "compatOptions": {
+      "openai_compatible": { "label": "OpenAI Compatible", "authType": "bearer", "baseUrlPlaceholder": "" },
+      "anthropic_compatible": { "label": "Anthropic Compatible", "authType": "x-api-key", "baseUrlPlaceholder": "" }
+    }
+  }
+]

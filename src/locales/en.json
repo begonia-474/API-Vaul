@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "API-Vaul"
+  },
+  "nav": {
+    "allKeys": "All Keys",
+    "settings": "Settings"
+  },
+  "lock": {
+    "setTitle": "Set Master Password",
+    "unlockTitle": "Unlock API-Vaul",
+    "setSubtitle": "First time use, set a master password to protect your API Keys",
+    "unlockSubtitle": "Enter your master password to continue",
+    "password": "Master Password",
+    "confirmPassword": "Confirm Password",
+    "setButton": "Set & Enter",
+    "unlockButton": "Unlock",
+    "errorMinLength": "Password must be at least 6 characters",
+    "errorMismatch": "Passwords do not match",
+    "errorSetupFailed": "Setup failed: {error}",
+    "errorWrongPassword": "Wrong password",
+    "errorUnlockFailed": "Unlock failed: {error}"
+  },
+  "keys": {
+    "title": "API Keys",
+    "addKey": "Add Key",
+    "searchPlaceholder": "Search keys...",
+    "noKeys": "No API Keys",
+    "noKeysDesc": "Add your first key to start managing API keys",
+    "copySuccess": "Key copied",
+    "copyFailed": "Copy failed"
+  },
+  "keyCard": {
+    "deleteConfirm": "Delete this key?",
+    "updated": "Updated: {date}"
+  },
+  "keyForm": {
+    "addTitle": "Add Key",
+    "editTitle": "Edit Key",
+    "name": "Name",
+    "namePlaceholder": "e.g. OpenAI production",
+    "provider": "Provider",
+    "providerPlaceholder": "Select provider",
+    "apiKeyPlaceholder": "Paste API Key",
+    "apiKeyEditPlaceholder": "Leave empty to keep unchanged",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional notes",
+    "status": "Status",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add"
+  },
+  "keyDetail": {
+    "back": "Back",
+    "provider": "Provider",
+    "baseUrl": "Base URL",
+    "apiKey": "API Key",
+    "copyKey": "Copy Key",
+    "description": "Description",
+    "noDescription": "No description",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this key?",
+    "noKeySelected": "No key selected"
+  },
+  "settings": {
+    "title": "Settings",
+    "security": "Security",
+    "autoLock": "Auto-lock (minutes)",
+    "lockNow": "Lock Now",
+    "changePassword": "Change Master Password",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "At least 6 characters",
+    "confirmPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Re-enter new password",
+    "updatePassword": "Update Password",
+    "passwordUpdated": "Password updated",
+    "passwordUpdateFailed": "Failed to update password, check current password",
+    "passwordUpdateError": "Failed to update password",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "themeSystem": "System",
+    "language": "Language",
+    "saveSettings": "Save Settings",
+    "settingsSaved": "Settings saved",
+    "settingsSaveFailed": "Failed to save settings"
+  },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "edit": "Edit",
+    "add": "Add",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "noData": "No data"
+  }
+}

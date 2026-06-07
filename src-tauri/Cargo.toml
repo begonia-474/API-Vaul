@@ -1,0 +1,30 @@
+[package]
+name = "api-vaul"
+version = "0.1.0"
+edition = "2021"
+authors = ["begonia-474"]
+description = "A local desktop application for securely storing and managing API keys"
+license = "MIT"
+repository = "https://github.com/begonia-474/API-Vaul"
+keywords = ["api", "key", "vault", "security", "tauri"]
+
+[dependencies]
+tauri = { version = "2", features = ["default"] }
+rusqlite = { version = "0.31", features = ["bundled"] }
+aes-gcm = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+base64 = "0.22"
+csv = "1"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

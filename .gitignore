@@ -1,0 +1,26 @@
+node_modules/
+dist/
+src-tauri/target/
+.pnpm-store/
+*.db
+*.db-shm
+*.db-wal
+encryption.key
+dev-output.log
+.vs/
+.codegraph/
+fix_mojibake.ps1
+
+# Project files
+PROJECT_PLAN.md
+.pnpm-approved-builds.txt
+src-tauri/icon-source.svg
+src-tauri/gen/
+
+# Claude Code
+.claude/
+CLAUDE.md
+docs/
+
+# Temp files
+icons/

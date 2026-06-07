@@ -1,0 +1,35 @@
+{
+  "name": "api-vaul",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.3.0",
+    "@vicons/ionicons5": "^0.12.0",
+    "lucide-vue-next": "^0.487.0",
+    "naive-ui": "^2.41.0",
+    "pinia": "^3.0.2",
+    "vue": "^3.5.13",
+    "vue-i18n": "^11.4.4",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@lobehub/icons-static-svg": "^1.91.0",
+    "@tauri-apps/cli": "^2.5.0",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.10.1",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^4.1.8",
+    "vue-tsc": "^2.2.10"
+  }
+}

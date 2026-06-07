@@ -1,0 +1,67 @@
+﻿/* Fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-normal);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Slide-fade (from right) */
+.slide-fade-enter-active {
+  transition: all var(--transition-normal);
+}
+
+.slide-fade-leave-active {
+  transition: all var(--transition-fast);
+}
+
+.slide-fade-enter-from {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+/* Slide-up (for modals / overlays) */
+.slide-up-enter-active {
+  transition: all var(--transition-normal);
+}
+
+.slide-up-leave-active {
+  transition: all var(--transition-fast);
+}
+
+.slide-up-enter-from {
+  transform: translateY(24px);
+  opacity: 0;
+}
+
+.slide-up-leave-to {
+  transform: translateY(24px);
+  opacity: 0;
+}
+
+/* Scale-fade (for popovers) */
+.scale-fade-enter-active {
+  transition: all var(--transition-normal);
+}
+
+.scale-fade-leave-active {
+  transition: all var(--transition-fast);
+}
+
+.scale-fade-enter-from {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.scale-fade-leave-to {
+  transform: scale(0.95);
+  opacity: 0;
+}

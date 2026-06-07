@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "API-Vaul"
+  },
+  "nav": {
+    "allKeys": "所有金鑰",
+    "settings": "設定"
+  },
+  "lock": {
+    "setTitle": "設定主密碼",
+    "unlockTitle": "解鎖 API-Vaul",
+    "setSubtitle": "首次使用，請設定主密碼以保護 API 金鑰",
+    "unlockSubtitle": "請輸入主密碼繼續",
+    "password": "主密碼",
+    "confirmPassword": "確認密碼",
+    "setButton": "設定並進入",
+    "unlockButton": "解鎖",
+    "errorMinLength": "密碼至少需要 6 個字元",
+    "errorMismatch": "兩次輸入的密碼不一致",
+    "errorSetupFailed": "設定失敗：{error}",
+    "errorWrongPassword": "密碼錯誤",
+    "errorUnlockFailed": "解鎖失敗：{error}"
+  },
+  "keys": {
+    "title": "API 金鑰",
+    "addKey": "新增金鑰",
+    "searchPlaceholder": "搜尋金鑰…",
+    "noKeys": "尚無 API 金鑰",
+    "noKeysDesc": "新增你的第一個金鑰，開始管理 API 金鑰",
+    "copySuccess": "已複製金鑰",
+    "copyFailed": "複製失敗"
+  },
+  "keyCard": {
+    "deleteConfirm": "確定刪除該金鑰？",
+    "updated": "更新時間：{date}"
+  },
+  "keyForm": {
+    "addTitle": "新增金鑰",
+    "editTitle": "編輯金鑰",
+    "name": "名稱",
+    "namePlaceholder": "例如：OpenAI 正式金鑰",
+    "provider": "供應商",
+    "providerPlaceholder": "請選擇供應商",
+    "apiKeyPlaceholder": "貼上 API 金鑰",
+    "apiKeyEditPlaceholder": "留空則維持不變",
+    "notes": "備註",
+    "notesPlaceholder": "可填寫備註資訊",
+    "status": "狀態",
+    "cancel": "取消",
+    "save": "儲存",
+    "add": "新增"
+  },
+  "keyDetail": {
+    "back": "返回",
+    "provider": "供應商",
+    "baseUrl": "Base URL",
+    "apiKey": "API 金鑰",
+    "copyKey": "複製金鑰",
+    "description": "描述",
+    "noDescription": "尚無描述",
+    "createdAt": "建立時間",
+    "updatedAt": "更新時間",
+    "edit": "編輯",
+    "delete": "刪除",
+    "deleteConfirm": "確定刪除該金鑰？",
+    "noKeySelected": "尚未選擇金鑰"
+  },
+  "settings": {
+    "title": "設定",
+    "security": "安全性",
+    "autoLock": "自動鎖定（分鐘）",
+    "lockNow": "立即鎖定",
+    "changePassword": "變更主密碼",
+    "currentPassword": "目前密碼",
+    "currentPasswordPlaceholder": "請輸入目前密碼",
+    "newPassword": "新密碼",
+    "newPasswordPlaceholder": "至少 6 個字元",
+    "confirmPassword": "確認新密碼",
+    "confirmPasswordPlaceholder": "請再次輸入新密碼",
+    "updatePassword": "更新密碼",
+    "passwordUpdated": "密碼已更新",
+    "passwordUpdateFailed": "密碼更新失敗，請檢查目前密碼",
+    "passwordUpdateError": "密碼更新發生錯誤",
+    "appearance": "外觀",
+    "theme": "主題",
+    "themeDark": "深色",
+    "themeLight": "淺色",
+    "themeSystem": "跟隨系統",
+    "language": "語言",
+    "saveSettings": "儲存設定",
+    "settingsSaved": "設定已儲存",
+    "settingsSaveFailed": "設定儲存失敗"
+  },
+  "common": {
+    "confirm": "確認",
+    "cancel": "取消",
+    "delete": "刪除",
+    "save": "儲存",
+    "edit": "編輯",
+    "add": "新增",
+    "loading": "載入中…",
+    "error": "錯誤",
+    "success": "成功",
+    "noData": "暫無資料"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "API-Vaul"
+  },
+  "nav": {
+    "allKeys": "所有密钥",
+    "settings": "设置"
+  },
+  "lock": {
+    "setTitle": "设置主密码",
+    "unlockTitle": "解锁 API-Vaul",
+    "setSubtitle": "首次使用，请设置主密码以保护 API 密钥",
+    "unlockSubtitle": "请输入主密码继续",
+    "password": "主密码",
+    "confirmPassword": "确认密码",
+    "setButton": "设置并进入",
+    "unlockButton": "解锁",
+    "errorMinLength": "密码至少需要 6 个字符",
+    "errorMismatch": "两次输入的密码不一致",
+    "errorSetupFailed": "设置失败：{error}",
+    "errorWrongPassword": "密码错误",
+    "errorUnlockFailed": "解锁失败：{error}"
+  },
+  "keys": {
+    "title": "API 密钥",
+    "addKey": "添加密钥",
+    "searchPlaceholder": "搜索密钥…",
+    "noKeys": "暂无 API 密钥",
+    "noKeysDesc": "添加你的第一个密钥，开始管理 API 密钥",
+    "copySuccess": "已复制密钥",
+    "copyFailed": "复制失败"
+  },
+  "keyCard": {
+    "deleteConfirm": "确定删除该密钥？",
+    "updated": "更新时间：{date}"
+  },
+  "keyForm": {
+    "addTitle": "添加密钥",
+    "editTitle": "编辑密钥",
+    "name": "名称",
+    "namePlaceholder": "例如：OpenAI 生产密钥",
+    "provider": "供应商",
+    "providerPlaceholder": "请选择供应商",
+    "apiKeyPlaceholder": "粘贴 API 密钥",
+    "apiKeyEditPlaceholder": "留空则保持不变",
+    "notes": "备注",
+    "notesPlaceholder": "可填写备注信息",
+    "status": "状态",
+    "cancel": "取消",
+    "save": "保存",
+    "add": "添加"
+  },
+  "keyDetail": {
+    "back": "返回",
+    "provider": "供应商",
+    "baseUrl": "Base URL",
+    "apiKey": "API 密钥",
+    "copyKey": "复制密钥",
+    "description": "描述",
+    "noDescription": "暂无描述",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定删除该密钥？",
+    "noKeySelected": "未选择密钥"
+  },
+  "settings": {
+    "title": "设置",
+    "security": "安全",
+    "autoLock": "自动锁定（分钟）",
+    "lockNow": "立即锁定",
+    "changePassword": "修改主密码",
+    "currentPassword": "当前密码",
+    "currentPasswordPlaceholder": "请输入当前密码",
+    "newPassword": "新密码",
+    "newPasswordPlaceholder": "至少 6 个字符",
+    "confirmPassword": "确认新密码",
+    "confirmPasswordPlaceholder": "请再次输入新密码",
+    "updatePassword": "更新密码",
+    "passwordUpdated": "密码已更新",
+    "passwordUpdateFailed": "密码更新失败，请检查当前密码",
+    "passwordUpdateError": "密码更新出错",
+    "appearance": "外观",
+    "theme": "主题",
+    "themeDark": "深色",
+    "themeLight": "浅色",
+    "themeSystem": "跟随系统",
+    "language": "语言",
+    "saveSettings": "保存设置",
+    "settingsSaved": "设置已保存",
+    "settingsSaveFailed": "设置保存失败"
+  },
+  "common": {
+    "confirm": "确认",
+    "cancel": "取消",
+    "delete": "删除",
+    "save": "保存",
+    "edit": "编辑",
+    "add": "添加",
+    "loading": "加载中…",
+    "error": "错误",
+    "success": "成功",
+    "noData": "暂无数据"
+  }
+}
