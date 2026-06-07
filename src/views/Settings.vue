@@ -96,8 +96,8 @@ async function handleChangePassword() {
   }
 }
 
-function handleLock() {
-  auth.lock()
+async function handleLock() {
+  await auth.lock()
   router.push('/')
 }
 </script>

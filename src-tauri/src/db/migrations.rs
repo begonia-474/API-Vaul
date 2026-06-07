@@ -1,12 +1,53 @@
 use rusqlite::Connection;
 
+fn ensure_version_table(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    conn.execute_batch(
+        "CREATE TABLE IF NOT EXISTS schema_version (
+            version INTEGER PRIMARY KEY,
+            applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );",
+    )?;
+    Ok(())
+}
+
+fn current_version(conn: &Connection) -> i64 {
+    conn.query_row(
+        "SELECT COALESCE(MAX(version), 0) FROM schema_version",
+        [],
+        |row| row.get(0),
+    )
+    .unwrap_or(0)
+}
+
+fn mark_version(conn: &Connection, version: i64) -> Result<(), Box<dyn std::error::Error>> {
+    conn.execute(
+        "INSERT INTO schema_version (version) VALUES (?1)",
+        rusqlite::params![version],
+    )?;
+    Ok(())
+}
+
 pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
-    create_tables(conn)?;
-    migrate_add_language(conn)?;
-    migrate_add_api_key_base_url(conn)?;
-    migrate_add_provider_presets(conn)?;
-    seed_providers(conn)?;
-    seed_settings(conn)?;
+    ensure_version_table(conn)?;
+
+    let migrations: Vec<(i64, &str, fn(&Connection) -> Result<(), Box<dyn std::error::Error>>)> = vec![
+        (1, "create_tables", create_tables),
+        (2, "migrate_add_language", migrate_add_language),
+        (3, "migrate_add_api_key_base_url", migrate_add_api_key_base_url),
+        (4, "migrate_add_provider_presets", migrate_add_provider_presets),
+        (5, "seed_providers", seed_providers),
+        (6, "seed_settings", seed_settings),
+    ];
+
+    let current = current_version(conn);
+
+    for (version, _name, migrate_fn) in &migrations {
+        if *version > current {
+            migrate_fn(conn)?;
+            mark_version(conn, *version)?;
+        }
+    }
+
     Ok(())
 }
 
@@ -185,26 +226,23 @@ fn seed_missing_providers(conn: &Connection) -> Result<(), Box<dyn std::error::E
         }
     }
 
-    let _ = conn.execute(
-        "UPDATE providers SET display_name = '\u{667a}\u{8c31} GLM' WHERE name = 'zhipu' AND display_name != '\u{667a}\u{8c31} GLM'",
-        [],
-    );
-    let _ = conn.execute(
-        "UPDATE providers SET display_name = 'Kimi (\u{6708}\u{4e4b}\u{6697}\u{9762})' WHERE name = 'moonshot' AND display_name != 'Kimi (\u{6708}\u{4e4b}\u{6697}\u{9762})'",
-        [],
-    );
-    let _ = conn.execute(
-        "UPDATE providers SET display_name = '\u{767e}\u{5ea6}\u{6587}\u{5fc3}' WHERE name = 'wenxin' AND display_name != '\u{767e}\u{5ea6}\u{6587}\u{5fc3}'",
-        [],
-    );
-    let _ = conn.execute(
-        "UPDATE providers SET icon = '\u{1f534}' WHERE name = 'wenxin' AND icon = '\u{1f535}'",
-        [],
-    );
-    let _ = conn.execute(
-        "UPDATE providers SET display_name = '\u{81ea}\u{5b9a}\u{4e49}\u{4f9b}\u{5e94}\u{5546}' WHERE name = 'custom' AND display_name = '\u{7b2c}\u{4e09}\u{65b9}\u{4e2d}\u{8f6c}'",
-        [],
-    );
+    let renames: Vec<(&str, &str, &str)> = vec![
+        ("zhipu", "display_name", "智谱 GLM"),
+        ("moonshot", "display_name", "Kimi (月之暗面)"),
+        ("wenxin", "display_name", "百度文心"),
+        ("wenxin", "icon", "🔴"),
+        ("custom", "display_name", "自定义供应商"),
+    ];
+
+    for (name, field, new_value) in renames {
+        let _ = conn.execute(
+            &format!(
+                "UPDATE providers SET {} = ?1 WHERE name = ?2 AND {} != ?1",
+                field, field
+            ),
+            rusqlite::params![new_value, name],
+        );
+    }
 
     Ok(())
 }

@@ -5,9 +5,15 @@ pub mod error;
 pub mod models;
 pub mod services;
 
+use std::sync::Mutex;
+
 use crypto::aes::EncryptionKey;
 use db::connection::Database;
 use tauri::Manager;
+
+pub struct AuthState {
+    pub unlocked: Mutex<bool>,
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -19,6 +25,7 @@ pub fn run() {
 
             app.manage(db);
             app.manage(encryption_key);
+            app.manage(AuthState { unlocked: Mutex::new(false) });
 
             Ok(())
         })
@@ -27,6 +34,7 @@ pub fn run() {
             commands::auth::verify_password,
             commands::auth::is_first_run,
             commands::auth::change_password,
+            commands::auth::lock_app,
             commands::api_key::get_all_keys,
             commands::api_key::create_key,
             commands::api_key::update_key,

@@ -3,6 +3,14 @@
 use crate::crypto::password;
 use crate::db::connection::Database;
 use crate::error::AppError;
+use crate::AuthState;
+
+fn require_unlocked(auth_state: &State<'_, AuthState>) -> Result<(), AppError> {
+    if !*auth_state.unlocked.lock().unwrap() {
+        return Err(AppError::AuthFailed);
+    }
+    Ok(())
+}
 
 #[tauri::command]
 pub fn is_first_run(db: State<'_, Database>) -> Result<bool, AppError> {
@@ -19,7 +27,11 @@ pub fn is_first_run(db: State<'_, Database>) -> Result<bool, AppError> {
 }
 
 #[tauri::command]
-pub fn setup_password(password_str: String, db: State<'_, Database>) -> Result<bool, AppError> {
+pub fn setup_password(
+    password_str: String,
+    db: State<'_, Database>,
+    auth_state: State<'_, AuthState>,
+) -> Result<bool, AppError> {
     eprintln!("[setup_password] called with len={}", password_str.len());
 
     if password_str.len() < 6 {
@@ -51,6 +63,7 @@ pub fn setup_password(password_str: String, db: State<'_, Database>) -> Result<b
         })?;
 
     eprintln!("[setup_password] updated {} rows", affected);
+    *auth_state.unlocked.lock().unwrap() = true;
     Ok(true)
 }
 
@@ -58,6 +71,7 @@ pub fn setup_password(password_str: String, db: State<'_, Database>) -> Result<b
 pub fn verify_password(
     password_str: String,
     db: State<'_, Database>,
+    auth_state: State<'_, AuthState>,
 ) -> Result<bool, AppError> {
     let conn = db.conn.lock().unwrap();
     let hash: Option<String> = conn
@@ -68,12 +82,25 @@ pub fn verify_password(
         )
         .map_err(AppError::Database)?;
 
-    match hash {
-        Some(h) => password::verify_password(&password_str, &h),
-        None => Err(AppError::InvalidInput(
-            "Password not set up yet".to_string(),
-        )),
+    let result = match hash {
+        Some(h) => password::verify_password(&password_str, &h)?,
+        None => {
+            return Err(AppError::InvalidInput(
+                "Password not set up yet".to_string(),
+            ));
+        }
+    };
+
+    if result {
+        *auth_state.unlocked.lock().unwrap() = true;
     }
+    Ok(result)
+}
+
+#[tauri::command]
+pub fn lock_app(auth_state: State<'_, AuthState>) -> Result<(), AppError> {
+    *auth_state.unlocked.lock().unwrap() = false;
+    Ok(())
 }
 
 #[tauri::command]
@@ -81,7 +108,9 @@ pub fn change_password(
     old_password: String,
     new_password: String,
     db: State<'_, Database>,
+    auth_state: State<'_, AuthState>,
 ) -> Result<bool, AppError> {
+    require_unlocked(&auth_state)?;
     if new_password.len() < 6 {
         return Err(AppError::InvalidInput(
             "New password must be at least 6 characters".to_string(),

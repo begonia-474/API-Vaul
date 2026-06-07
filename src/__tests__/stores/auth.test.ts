@@ -24,12 +24,28 @@ describe('auth store', () => {
     expect(mockInvoke).toHaveBeenCalledWith('is_first_run')
   })
 
+  it('checkFirstRun sets isFirstRun to false when not first run', async () => {
+    mockInvoke.mockResolvedValueOnce(false)
+    const auth = useAuthStore()
+    await auth.checkFirstRun()
+    expect(auth.isFirstRun).toBe(false)
+    expect(mockInvoke).toHaveBeenCalledWith('is_first_run')
+  })
+
+  it('checkFirstRun defaults isFirstRun to true on error', async () => {
+    mockInvoke.mockRejectedValueOnce(new Error('network error'))
+    const auth = useAuthStore()
+    await auth.checkFirstRun()
+    expect(auth.isFirstRun).toBe(true)
+  })
+
   it('setupPassword sets isUnlocked on success', async () => {
     mockInvoke.mockResolvedValueOnce(true)
     const auth = useAuthStore()
     const result = await auth.setupPassword('test123')
     expect(result).toBe(true)
     expect(auth.isUnlocked).toBe(true)
+    expect(auth.isFirstRun).toBe(false)
     expect(mockInvoke).toHaveBeenCalledWith('setup_password', { passwordStr: 'test123' })
   })
 
@@ -61,7 +77,8 @@ describe('auth store', () => {
     const auth = useAuthStore()
     await auth.unlock('test123')
     expect(auth.isUnlocked).toBe(true)
-    auth.lock()
+    mockInvoke.mockResolvedValueOnce(undefined)
+    await auth.lock()
     expect(auth.isUnlocked).toBe(false)
   })
 

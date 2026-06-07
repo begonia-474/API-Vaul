@@ -5,14 +5,31 @@ use crate::db::connection::Database;
 use crate::error::AppError;
 use crate::models::api_key::{ApiKeyView, NewApiKey, UpdateApiKey};
 use crate::services::key_service;
+use crate::AuthState;
+
+fn require_unlocked(auth_state: &State<'_, AuthState>) -> Result<(), AppError> {
+    if !*auth_state.unlocked.lock().unwrap() {
+        return Err(AppError::AuthFailed);
+    }
+    Ok(())
+}
 
 #[tauri::command]
-pub fn get_all_keys(db: State<'_, Database>) -> Result<Vec<ApiKeyView>, AppError> {
+pub fn get_all_keys(
+    db: State<'_, Database>,
+    auth_state: State<'_, AuthState>,
+) -> Result<Vec<ApiKeyView>, AppError> {
+    require_unlocked(&auth_state)?;
     key_service::get_all_keys(&db)
 }
 
 #[tauri::command]
-pub fn search_keys(query: String, db: State<'_, Database>) -> Result<Vec<ApiKeyView>, AppError> {
+pub fn search_keys(
+    query: String,
+    db: State<'_, Database>,
+    auth_state: State<'_, AuthState>,
+) -> Result<Vec<ApiKeyView>, AppError> {
+    require_unlocked(&auth_state)?;
     key_service::search_keys(&db, &query)
 }
 
@@ -21,7 +38,9 @@ pub fn create_key(
     new_key: NewApiKey,
     db: State<'_, Database>,
     enc: State<'_, EncryptionKey>,
+    auth_state: State<'_, AuthState>,
 ) -> Result<ApiKeyView, AppError> {
+    require_unlocked(&auth_state)?;
     if new_key.name.trim().is_empty() {
         return Err(AppError::InvalidInput("Key name cannot be empty".to_string()));
     }
@@ -36,7 +55,9 @@ pub fn update_key(
     update: UpdateApiKey,
     db: State<'_, Database>,
     enc: State<'_, EncryptionKey>,
+    auth_state: State<'_, AuthState>,
 ) -> Result<ApiKeyView, AppError> {
+    require_unlocked(&auth_state)?;
     if update.name.trim().is_empty() {
         return Err(AppError::InvalidInput("Key name cannot be empty".to_string()));
     }
@@ -44,7 +65,12 @@ pub fn update_key(
 }
 
 #[tauri::command]
-pub fn delete_key(id: i64, db: State<'_, Database>) -> Result<(), AppError> {
+pub fn delete_key(
+    id: i64,
+    db: State<'_, Database>,
+    auth_state: State<'_, AuthState>,
+) -> Result<(), AppError> {
+    require_unlocked(&auth_state)?;
     key_service::delete_key(&db, id)
 }
 
@@ -53,6 +79,8 @@ pub fn get_decrypted_key(
     id: i64,
     db: State<'_, Database>,
     enc: State<'_, EncryptionKey>,
+    auth_state: State<'_, AuthState>,
 ) -> Result<String, AppError> {
+    require_unlocked(&auth_state)?;
     key_service::get_decrypted_key(&db, &enc.key, id)
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NIcon, NCard, NDescriptions, NDescriptionsItem, useMessage } from 'naive-ui'
+import { NButton, NIcon, NCard, NDescriptions, NDescriptionsItem, useMessage, useDialog } from 'naive-ui'
 import { ArrowBackOutline, CopyOutline, CreateOutline, TrashOutline, KeyOutline } from '@vicons/ionicons5'
 import { useApiKeysStore } from '@/stores/apiKeys'
 import { useProvidersStore } from '@/stores/providers'
@@ -14,6 +14,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const dialog = useDialog()
 const apiKeysStore = useApiKeysStore()
 const providersStore = useProvidersStore()
 
@@ -50,10 +51,18 @@ async function handleCopyKey() {
 }
 
 async function handleDelete() {
-  const ok = await apiKeysStore.deleteKey(keyId.value)
-  if (ok) {
-    router.push('/keys')
-  }
+  dialog.warning({
+    title: t('keyDetail.confirmDeleteTitle'),
+    content: t('keyDetail.confirmDeleteContent'),
+    positiveText: t('keyDetail.delete'),
+    negativeText: t('keyDetail.cancel'),
+    onPositiveClick: async () => {
+      const ok = await apiKeysStore.deleteKey(keyId.value)
+      if (ok) {
+        router.push('/keys')
+      }
+    },
+  })
 }
 
 function handleBack() {

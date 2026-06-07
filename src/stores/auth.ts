@@ -42,7 +42,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function lock(): void {
+  async function lock(): Promise<void> {
+    try {
+      await invoke('lock_app')
+    } catch (err) {
+      console.error('Failed to lock:', err)
+    }
     isUnlocked.value = false
   }
 
