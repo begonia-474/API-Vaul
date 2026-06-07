@@ -266,7 +266,9 @@ fn migrate_split_base_url(conn: &Connection) -> Result<(), Box<dyn std::error::E
         conn.execute("ALTER TABLE api_keys ADD COLUMN anthropic_base_url TEXT", [])?;
     }
 
-    // Migrate existing base_url data to openai_base_url
+    // Migrate existing base_url data to openai_base_url.
+    // Note: the old `base_url` column is intentionally kept — SQLite DROP COLUMN
+    // requires 3.35+ and removing it risks breaking older user databases.
     if existing_columns.contains("base_url") {
         conn.execute(
             "UPDATE api_keys SET openai_base_url = base_url WHERE base_url IS NOT NULL AND base_url != '' AND (openai_base_url IS NULL OR openai_base_url = '')",

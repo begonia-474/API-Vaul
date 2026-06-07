@@ -66,8 +66,12 @@ async function handleDelete() {
 }
 
 async function handleCopyUrl(url: string) {
-  await navigator.clipboard.writeText(url)
-  message.success(t('keys.copySuccess'))
+  try {
+    await navigator.clipboard.writeText(url)
+    message.success(t('keys.copySuccess'))
+  } catch {
+    message.error(t('keys.copyFailed'))
+  }
 }
 
 function handleBack() {
