@@ -71,7 +71,13 @@
     "confirmDeleteTitle": "确认删除",
     "confirmDeleteContent": "确定要删除该 API 密钥吗？此操作无法撤销。",
     "cancel": "取消",
-    "noKeySelected": "未选择密钥"
+    "noKeySelected": "未选择密钥",
+    "childKeys": "附加密钥",
+    "noChildKeys": "暂无附加密钥",
+    "childNamePlaceholder": "密钥名称",
+    "childKeyAdded": "密钥已添加",
+    "childKeyAddFailed": "添加密钥失败",
+    "save": "保存"
   },
   "settings": {
     "title": "设置",

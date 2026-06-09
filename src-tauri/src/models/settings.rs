@@ -16,9 +16,9 @@ impl Default for AppSettings {
         Self {
             id: 1,
             password_hash: None,
-            theme: "dark".to_string(),
+            theme: "light".to_string(),
             auto_lock_minutes: 5,
-            language: "en".to_string(),
+            language: "zh-CN".to_string(),
             created_at: String::new(),
             updated_at: String::new(),
         }

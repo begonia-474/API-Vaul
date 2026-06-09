@@ -16,8 +16,8 @@ const router = useRouter()
 const message = useMessage()
 
 const lockTimeout = ref(5)
-const theme = ref<'dark' | 'light' | 'system'>('dark')
-const currentLanguage = ref<SupportedLocale>('en')
+const theme = ref<'dark' | 'light' | 'system'>('light')
+const currentLanguage = ref<SupportedLocale>('zh-CN')
 const loading = ref(false)
 
 const currentPassword = ref('')

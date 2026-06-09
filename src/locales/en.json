@@ -71,7 +71,13 @@
     "confirmDeleteTitle": "Confirm Delete",
     "confirmDeleteContent": "Are you sure you want to delete this API key? This action cannot be undone.",
     "cancel": "Cancel",
-    "noKeySelected": "No key selected"
+    "noKeySelected": "No key selected",
+    "childKeys": "Additional Keys",
+    "noChildKeys": "No additional keys",
+    "childNamePlaceholder": "Key name",
+    "childKeyAdded": "Key added",
+    "childKeyAddFailed": "Failed to add key",
+    "save": "Save"
   },
   "settings": {
     "title": "Settings",

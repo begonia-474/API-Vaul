@@ -6,9 +6,9 @@ import i18n, { type SupportedLocale } from '@/locales'
 type ThemeChoice = 'dark' | 'light' | 'system'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const theme = ref<ThemeChoice>('dark')
+  const theme = ref<ThemeChoice>('light')
   const autoLockMinutes = ref(5)
-  const language = ref<SupportedLocale>('en')
+  const language = ref<SupportedLocale>('zh-CN')
   const loading = ref(false)
   const initialized = ref(false)
 

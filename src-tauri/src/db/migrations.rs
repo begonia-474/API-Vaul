@@ -38,6 +38,7 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (5, "seed_providers", seed_providers),
         (6, "seed_settings", seed_settings),
         (7, "migrate_split_base_url", migrate_split_base_url),
+        (8, "migrate_add_parent_id", migrate_add_parent_id),
     ];
 
     let current = current_version(conn);
@@ -286,9 +287,27 @@ fn seed_settings(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     conn.execute(
-        "INSERT INTO settings (id, password_hash, theme, auto_lock_minutes, language) VALUES (1, NULL, 'dark', 5, 'en')",
+        "INSERT INTO settings (id, password_hash, theme, auto_lock_minutes, language) VALUES (1, NULL, 'light', 5, 'zh-CN')",
         [],
     )?;
+
+    Ok(())
+}
+
+fn migrate_add_parent_id(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    let mut existing_columns = std::collections::HashSet::new();
+    {
+        let mut stmt = conn.prepare("PRAGMA table_info(api_keys)").map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+        let mut rows = stmt.query([]).map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+        while let Some(row) = rows.next().map_err(|e| Box::<dyn std::error::Error>::from(e))? {
+            let column_name: String = row.get(1).map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+            existing_columns.insert(column_name);
+        }
+    }
+
+    if !existing_columns.contains("parent_id") {
+        conn.execute("ALTER TABLE api_keys ADD COLUMN parent_id INTEGER REFERENCES api_keys(id) ON DELETE CASCADE", [])?;
+    }
 
     Ok(())
 }

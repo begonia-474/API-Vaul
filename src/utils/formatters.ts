@@ -17,7 +17,7 @@ export function formatMaskedKey(key: string, visibleStart = 4, visibleEnd = 4): 
 export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '—'
   try {
-    const date = new Date(dateStr)
+    const date = new Date(dateStr + 'Z')
     return date.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -46,7 +46,7 @@ export function formatRelativeTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '—'
   try {
     const now = Date.now()
-    const then = new Date(dateStr).getTime()
+    const then = new Date(dateStr + 'Z').getTime()
     const diffMs = now - then
     const diffMin = Math.floor(diffMs / 60_000)
 

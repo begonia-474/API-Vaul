@@ -11,6 +11,7 @@ pub struct ApiKey {
     pub description: Option<String>,
     pub openai_base_url: Option<String>,
     pub anthropic_base_url: Option<String>,
+    pub parent_id: Option<i64>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -26,6 +27,7 @@ pub struct ApiKeyView {
     pub description: Option<String>,
     pub openai_base_url: Option<String>,
     pub anthropic_base_url: Option<String>,
+    pub parent_id: Option<i64>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -38,6 +40,7 @@ pub struct NewApiKey {
     pub description: Option<String>,
     pub openai_base_url: Option<String>,
     pub anthropic_base_url: Option<String>,
+    pub parent_id: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,4 +52,5 @@ pub struct UpdateApiKey {
     pub description: Option<String>,
     pub openai_base_url: Option<String>,
     pub anthropic_base_url: Option<String>,
+    pub parent_id: Option<i64>,
 }

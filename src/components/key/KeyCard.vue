@@ -17,7 +17,7 @@ const emit = defineEmits<{
 }>()
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('zh-CN', {
+  return new Date(dateStr + 'Z').toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

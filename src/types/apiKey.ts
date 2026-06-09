@@ -6,6 +6,7 @@ export interface ApiKey {
   description: string | null
   openai_base_url: string | null
   anthropic_base_url: string | null
+  parent_id: number | null
   created_at: string
   updated_at: string
 }
@@ -20,6 +21,7 @@ export interface ApiKeyView {
   description: string | null
   openai_base_url: string | null
   anthropic_base_url: string | null
+  parent_id: number | null
   created_at: string
   updated_at: string
 }
@@ -31,6 +33,7 @@ export interface CreateKeyInput {
   description?: string
   openai_base_url?: string
   anthropic_base_url?: string
+  parent_id?: number
 }
 
 export interface UpdateKeyInput {
@@ -41,4 +44,5 @@ export interface UpdateKeyInput {
   description?: string
   openai_base_url?: string
   anthropic_base_url?: string
+  parent_id?: number
 }
