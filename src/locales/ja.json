@@ -79,6 +79,10 @@
     "keyNamePlaceholder": "キー名",
     "keyAdded": "キーを追加しました",
     "keyAddFailed": "キーの追加に失敗しました",
+    "keyUpdated": "キーを更新しました",
+    "keyUpdateFailed": "キーの更新に失敗しました",
+    "keyName": "キー名",
+    "newApiKey": "新しい API Key（空欄なら変更なし）",
     "save": "保存"
   },
   "settings": {

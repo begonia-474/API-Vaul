@@ -79,6 +79,10 @@
     "keyNamePlaceholder": "Key name",
     "keyAdded": "Key added",
     "keyAddFailed": "Failed to add key",
+    "keyUpdated": "Key updated",
+    "keyUpdateFailed": "Failed to update key",
+    "keyName": "Key Name",
+    "newApiKey": "New API Key (leave empty to keep)",
     "save": "Save"
   },
   "settings": {

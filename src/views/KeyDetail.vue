@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NIcon, NCard, NDescriptions, NDescriptionsItem, useMessage, useDialog } from 'naive-ui'
+import { NButton, NIcon, NCard, NDescriptions, NDescriptionsItem, NInput, useMessage, useDialog } from 'naive-ui'
 import {
   ArrowBackOutline,
   CopyOutline,
@@ -9,6 +9,7 @@ import {
   AddOutline,
   EyeOutline,
   EyeOffOutline,
+  CreateOutline,
 } from '@vicons/ionicons5'
 import { useApiKeysStore } from '@/stores/apiKeys'
 import { useProvidersStore } from '@/stores/providers'
@@ -40,9 +41,18 @@ const pageTitle = computed(() => {
 })
 
 const showAddKey = ref(false)
+const newKeyName = ref('')
 const newKeyRaw = ref('')
 const addKeyLoading = ref(false)
 const revealedKeys = ref<Map<number, string>>(new Map())
+
+// Provider info editing
+const editingProviderInfo = ref(false)
+const providerEditForm = ref({ openai_base_url: '', anthropic_base_url: '', description: '' })
+
+// Key editing
+const editingKeyId = ref<number | null>(null)
+const editForm = ref({ name: '', raw_key: '' })
 
 onMounted(async () => {
   if (providersStore.providers.length === 0) {
@@ -108,15 +118,79 @@ async function toggleRevealKey(id: number) {
   }
 }
 
+// Provider info editing
+function startEditProviderInfo() {
+  const first = groupKeys.value[0]
+  providerEditForm.value = {
+    openai_base_url: first?.openai_base_url ?? '',
+    anthropic_base_url: first?.anthropic_base_url ?? '',
+    description: first?.description ?? '',
+  }
+  editingProviderInfo.value = true
+}
+
+function cancelEditProviderInfo() {
+  editingProviderInfo.value = false
+}
+
+async function saveProviderInfo() {
+  for (const key of groupKeys.value) {
+    await apiKeysStore.updateKey({
+      id: key.id,
+      provider_id: key.provider_id,
+      name: key.name,
+      openai_base_url: providerEditForm.value.openai_base_url || undefined,
+      anthropic_base_url: providerEditForm.value.anthropic_base_url || undefined,
+      description: providerEditForm.value.description || undefined,
+    })
+  }
+  editingProviderInfo.value = false
+  message.success(t('keyDetail.metadataSaved'))
+}
+
+// Key editing
+function startEditKey(key: any) {
+  editingKeyId.value = key.id
+  editForm.value = {
+    name: key.name,
+    raw_key: '',
+  }
+}
+
+function cancelEditKey() {
+  editingKeyId.value = null
+}
+
+async function saveEditKey(key: any) {
+  const ok = await apiKeysStore.updateKey({
+    id: key.id,
+    provider_id: key.provider_id,
+    name: editForm.value.name,
+    raw_key: editForm.value.raw_key || undefined,
+    openai_base_url: key.openai_base_url ?? undefined,
+    anthropic_base_url: key.anthropic_base_url ?? undefined,
+    description: key.description ?? undefined,
+  })
+  if (ok) {
+    editingKeyId.value = null
+    message.success(t('keyDetail.keyUpdated'))
+  } else {
+    message.error(t('keyDetail.keyUpdateFailed'))
+  }
+}
+
 async function handleAddKey() {
   if (!newKeyRaw.value.trim()) return
   addKeyLoading.value = true
-  const keyName = `Key-${Date.now().toString(36)}`
+  const keyName = newKeyName.value.trim() || `Key-${Date.now().toString(36)}`
+  const firstKey = groupKeys.value[0]
   const ok = await apiKeysStore.createKey({
     provider_id: providerId.value,
     name: keyName,
     raw_key: newKeyRaw.value.trim(),
-    description: description.value || undefined,
+    description: firstKey?.description ?? undefined,
+    openai_base_url: firstKey?.openai_base_url ?? undefined,
+    anthropic_base_url: firstKey?.anthropic_base_url ?? undefined,
   })
   addKeyLoading.value = false
   if (ok) {
@@ -151,31 +225,58 @@ async function handleAddKey() {
               :size="24"
             />
             <h2 class="provider-name">{{ pageTitle }}</h2>
+            <n-button v-if="!editingProviderInfo" text size="small" @click="startEditProviderInfo">
+              <template #icon><n-icon :component="CreateOutline" /></template>
+            </n-button>
           </div>
         </div>
 
-        <!-- Show base URLs from first key in group -->
-        <n-descriptions v-if="groupKeys.length > 0" bordered :column="1" label-placement="left">
-          <n-descriptions-item v-if="groupKeys[0].openai_base_url" :label="t('keyDetail.openaiBaseUrl')">
-            <div class="url-row">
-              <code>{{ groupKeys[0].openai_base_url }}</code>
-              <n-button quaternary size="tiny" @click="handleCopyUrl(groupKeys[0].openai_base_url!)">
-                <template #icon><n-icon :component="CopyOutline" /></template>
-              </n-button>
+        <!-- View mode -->
+        <template v-if="!editingProviderInfo">
+          <n-descriptions v-if="groupKeys.length > 0" bordered :column="1" label-placement="left">
+            <n-descriptions-item v-if="groupKeys[0].openai_base_url" :label="t('keyDetail.openaiBaseUrl')">
+              <div class="url-row">
+                <code>{{ groupKeys[0].openai_base_url }}</code>
+                <n-button quaternary size="tiny" @click="handleCopyUrl(groupKeys[0].openai_base_url!)">
+                  <template #icon><n-icon :component="CopyOutline" /></template>
+                </n-button>
+              </div>
+            </n-descriptions-item>
+            <n-descriptions-item v-if="groupKeys[0].anthropic_base_url" :label="t('keyDetail.anthropicBaseUrl')">
+              <div class="url-row">
+                <code>{{ groupKeys[0].anthropic_base_url }}</code>
+                <n-button quaternary size="tiny" @click="handleCopyUrl(groupKeys[0].anthropic_base_url!)">
+                  <template #icon><n-icon :component="CopyOutline" /></template>
+                </n-button>
+              </div>
+            </n-descriptions-item>
+            <n-descriptions-item v-if="groupKeys[0].description" :label="t('keyDetail.description')">
+              {{ groupKeys[0].description }}
+            </n-descriptions-item>
+          </n-descriptions>
+        </template>
+
+        <!-- Edit mode -->
+        <template v-else>
+          <div class="edit-provider-form">
+            <div class="edit-field">
+              <label>{{ t('keyDetail.openaiBaseUrl') }}</label>
+              <n-input v-model:value="providerEditForm.openai_base_url" placeholder=" " size="small" />
             </div>
-          </n-descriptions-item>
-          <n-descriptions-item v-if="groupKeys[0].anthropic_base_url" :label="t('keyDetail.anthropicBaseUrl')">
-            <div class="url-row">
-              <code>{{ groupKeys[0].anthropic_base_url }}</code>
-              <n-button quaternary size="tiny" @click="handleCopyUrl(groupKeys[0].anthropic_base_url!)">
-                <template #icon><n-icon :component="CopyOutline" /></template>
-              </n-button>
+            <div class="edit-field">
+              <label>{{ t('keyDetail.anthropicBaseUrl') }}</label>
+              <n-input v-model:value="providerEditForm.anthropic_base_url" placeholder=" " size="small" />
             </div>
-          </n-descriptions-item>
-          <n-descriptions-item v-if="groupKeys[0].description" :label="t('keyDetail.description')">
-            {{ groupKeys[0].description }}
-          </n-descriptions-item>
-        </n-descriptions>
+            <div class="edit-field">
+              <label>{{ t('keyDetail.description') }}</label>
+              <n-input v-model:value="providerEditForm.description" placeholder=" " size="small" />
+            </div>
+            <div class="edit-actions">
+              <n-button size="small" @click="cancelEditProviderInfo">{{ t('keyDetail.cancel') }}</n-button>
+              <n-button type="primary" size="small" @click="saveProviderInfo">{{ t('keyDetail.save') }}</n-button>
+            </div>
+          </div>
+        </template>
       </n-card>
 
       <!-- API keys card -->
@@ -188,25 +289,47 @@ async function handleAddKey() {
         </div>
 
         <div v-if="groupKeys.length > 0" class="keys-list">
-          <div v-for="apiKey in groupKeys" :key="apiKey.id" class="key-row">
-            <div class="key-info">
-              <span class="key-name">{{ apiKey.name }}</span>
-              <code class="key-masked">{{ revealedKeys.get(apiKey.id) ?? apiKey.masked_preview }}</code>
-              <n-button text size="small" @click="toggleRevealKey(apiKey.id)">
-                <template #icon>
-                  <n-icon :component="revealedKeys.has(apiKey.id) ? EyeOffOutline : EyeOutline" />
-                </template>
-              </n-button>
+          <template v-for="apiKey in groupKeys" :key="apiKey.id">
+            <!-- View mode -->
+            <div v-if="editingKeyId !== apiKey.id" class="key-row">
+              <div class="key-info">
+                <span class="key-name">{{ apiKey.name }}</span>
+                <code class="key-masked">{{ revealedKeys.get(apiKey.id) ?? apiKey.masked_preview }}</code>
+                <n-button text size="small" @click="toggleRevealKey(apiKey.id)">
+                  <template #icon>
+                    <n-icon :component="revealedKeys.has(apiKey.id) ? EyeOffOutline : EyeOutline" />
+                  </template>
+                </n-button>
+              </div>
+              <div class="key-actions">
+                <n-button text size="small" @click="handleCopyKey(apiKey.id)">
+                  <template #icon><n-icon :component="CopyOutline" /></template>
+                </n-button>
+                <n-button text size="small" @click="startEditKey(apiKey)">
+                  <template #icon><n-icon :component="CreateOutline" /></template>
+                </n-button>
+                <n-button text size="small" type="error" @click="handleDeleteKey(apiKey.id)">
+                  <template #icon><n-icon :component="TrashOutline" /></template>
+                </n-button>
+              </div>
             </div>
-            <div class="key-actions">
-              <n-button text size="small" @click="handleCopyKey(apiKey.id)">
-                <template #icon><n-icon :component="CopyOutline" /></template>
-              </n-button>
-              <n-button text size="small" type="error" @click="handleDeleteKey(apiKey.id)">
-                <template #icon><n-icon :component="TrashOutline" /></template>
-              </n-button>
+
+            <!-- Edit mode -->
+            <div v-else class="key-edit-row">
+              <div class="edit-field">
+                <label>{{ t('keyDetail.keyName') }}</label>
+                <n-input v-model:value="editForm.name" placeholder=" " size="small" />
+              </div>
+              <div class="edit-field">
+                <label>API Key</label>
+                <n-input v-model:value="editForm.raw_key" type="password" show-password-on="click" :placeholder="t('keyDetail.newApiKey')" size="small" />
+              </div>
+              <div class="edit-actions">
+                <n-button size="small" @click="cancelEditKey">{{ t('keyDetail.cancel') }}</n-button>
+                <n-button type="primary" size="small" @click="saveEditKey(apiKey)">{{ t('keyDetail.save') }}</n-button>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
         <div v-else class="keys-empty">
           {{ t('keyDetail.noApiKeys') }}
@@ -214,6 +337,11 @@ async function handleAddKey() {
 
         <!-- Inline add form -->
         <div v-if="showAddKey" class="add-key-form">
+          <n-input
+            v-model:value="newKeyName"
+            :placeholder="t('keyDetail.keyName')"
+            size="small"
+          />
           <n-input
             v-model:value="newKeyRaw"
             type="password"
@@ -367,5 +495,35 @@ code {
 
 .add-key-form .n-input {
   flex: 1;
+  min-width: 0;
+}
+
+.edit-provider-form,
+.key-edit-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.edit-field label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
+.edit-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-top: var(--space-2);
 }
 </style>

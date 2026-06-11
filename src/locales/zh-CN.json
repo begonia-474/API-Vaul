@@ -79,6 +79,10 @@
     "keyNamePlaceholder": "密钥名称",
     "keyAdded": "密钥已添加",
     "keyAddFailed": "添加密钥失败",
+    "keyUpdated": "密钥已更新",
+    "keyUpdateFailed": "更新密钥失败",
+    "keyName": "密钥名称",
+    "newApiKey": "新 API Key（留空不更新）",
     "save": "保存"
   },
   "settings": {

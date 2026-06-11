@@ -27,6 +27,7 @@ const providersStore = useProvidersStore()
 
 const form = ref({
   provider_id: null as number | string | null,
+  name: '',
   raw_key: '',
   custom_name: '',
   custom_display_name: '',
@@ -56,6 +57,7 @@ watch(
       if (props.editKey) {
         form.value = {
           provider_id: props.editKey.provider_id,
+          name: props.editKey.name,
           raw_key: '',
           custom_name: '',
           custom_display_name: '',
@@ -67,6 +69,7 @@ watch(
       } else {
         form.value = {
           provider_id: props.defaultProviderId ?? null,
+          name: '',
           raw_key: '',
           custom_name: '',
           custom_display_name: '',
@@ -149,18 +152,19 @@ async function handleSubmit() {
       providerId = form.value.provider_id as number
     }
 
+    const keyName = form.value.name.trim() || `Key-${Date.now().toString(36)}`
+
     if (props.editKey) {
       await apiKeysStore.updateKey({
         id: props.editKey.id,
         provider_id: providerId,
-        name: props.editKey.name,
+        name: keyName,
         raw_key: form.value.raw_key || undefined,
         description: form.value.description.trim() || undefined,
         openai_base_url: form.value.openai_base_url.trim() || undefined,
         anthropic_base_url: form.value.anthropic_base_url.trim() || undefined,
       })
     } else {
-      const keyName = `Key-${Date.now().toString(36)}`
       await apiKeysStore.createKey({
         provider_id: providerId,
         name: keyName,
@@ -210,6 +214,10 @@ async function handleSubmit() {
           <n-input v-model:value="form.custom_icon" placeholder=" " />
         </n-form-item>
       </template>
+
+      <n-form-item :label="t('keyDetail.keyName')">
+        <n-input v-model:value="form.name" placeholder=" " />
+      </n-form-item>
 
       <n-form-item label="API Key">
         <n-input
