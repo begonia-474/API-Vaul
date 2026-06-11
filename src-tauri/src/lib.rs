@@ -40,9 +40,12 @@ pub fn run() {
             commands::api_key::update_key,
             commands::api_key::delete_key,
             commands::api_key::get_decrypted_key,
-            commands::api_key::get_child_keys,
             commands::api_key::search_keys,
+            commands::provider::create_provider,
             commands::provider::get_all_providers,
+            commands::provider::get_providers_with_keys,
+            commands::provider::get_provider_keys,
+            commands::provider::update_provider_metadata,
             commands::settings::get_settings,
             commands::settings::update_settings,
         ])

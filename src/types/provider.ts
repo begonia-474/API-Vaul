@@ -38,6 +38,9 @@ export interface Provider {
   website_url: string | null
   api_key_url: string | null
   preset_id: string | null
+  openai_base_url: string | null
+  anthropic_base_url: string | null
+  description: string | null
   created_at: string
 }
 

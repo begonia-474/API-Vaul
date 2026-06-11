@@ -1,63 +1,49 @@
 <script setup lang="ts">
-import { NIcon, NCard, NSpace, NButton, NPopconfirm } from 'naive-ui'
-import { TrashOutline, CopyOutline } from '@vicons/ionicons5'
-import type { ApiKeyView } from '@/types/apiKey'
+import { NIcon, NCard, NButton, NPopconfirm } from 'naive-ui'
+import { TrashOutline } from '@vicons/ionicons5'
+import ProviderIcon from '@/components/provider/ProviderIcon.vue'
+import type { KeyGroup } from '@/stores/providers'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-defineProps<{
-  apiKey: ApiKeyView
+const props = defineProps<{
+  group: KeyGroup
 }>()
 
 const emit = defineEmits<{
-  view: [id: number]
-  delete: [id: number]
-  copy: [id: number]
+  view: [group: KeyGroup]
+  delete: [group: KeyGroup]
 }>()
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr + 'Z').toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-}
+const displayTitle = props.group.description
+  ? `${props.group.provider.display_name} - ${props.group.description}`
+  : props.group.provider.display_name
 </script>
 
 <template>
-  <n-card class="key-card" hoverable>
+  <n-card class="key-card" hoverable @click="emit('view', group)">
     <div class="card-header">
       <div class="card-title-row">
-        <div class="card-title" @click="emit('view', apiKey.id)">{{ apiKey.name }}</div>
-        <n-space :size="4" @click.stop>
-          <n-button text size="small" @click="emit('copy', apiKey.id)">
-            <n-icon :component="CopyOutline" />
-          </n-button>
-          <n-popconfirm @positive-click="emit('delete', apiKey.id)">
-            <template #trigger>
-              <n-button text size="small" type="error">
-                <n-icon :component="TrashOutline" />
-              </n-button>
-            </template>
-            {{ t('keyCard.deleteConfirm') }}
-          </n-popconfirm>
-        </n-space>
+        <div class="card-icon">
+          <ProviderIcon
+            :name="group.provider.icon ?? group.provider.display_name"
+            :preset-id="group.provider.preset_id ?? undefined"
+            :size="20"
+          />
+        </div>
+        <div class="card-text">
+          <div class="card-title">{{ displayTitle }}</div>
+        </div>
+        <n-popconfirm @positive-click.stop="emit('delete', group)">
+          <template #trigger>
+            <n-button text size="small" type="error" @click.stop>
+              <n-icon :component="TrashOutline" />
+            </n-button>
+          </template>
+          {{ t('keyCard.deleteConfirm') }}
+        </n-popconfirm>
       </div>
-      <div class="card-provider">{{ apiKey.provider_display_name }}</div>
-    </div>
-
-    <div class="card-body" @click="emit('view', apiKey.id)">
-      <div class="masked-key">
-        <code>{{ apiKey.masked_preview }}</code>
-      </div>
-      <div class="card-description" v-if="apiKey.description">
-        {{ apiKey.description }}
-      </div>
-    </div>
-
-    <div class="card-footer" @click="emit('view', apiKey.id)">
-      <span class="card-date">{{ t('keyCard.updated', { date: formatDate(apiKey.updated_at) }) }}</span>
     </div>
   </n-card>
 </template>
@@ -74,52 +60,29 @@ function formatDate(dateStr: string): string {
 }
 
 .card-header {
-  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
 }
 
 .card-title-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  width: 100%;
+}
+
+.card-icon {
+  flex-shrink: 0;
+}
+
+.card-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .card-title {
-  flex: 1;
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
-}
-
-.card-provider {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  margin-top: var(--space-1);
-}
-
-.card-body {
-  margin-bottom: var(--space-3);
-}
-
-.masked-key code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  background: var(--bg-elevated);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-}
-
-.card-description {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  margin-top: var(--space-2);
-}
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
 }
 </style>

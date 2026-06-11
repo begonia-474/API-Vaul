@@ -39,6 +39,8 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (6, "seed_settings", seed_settings),
         (7, "migrate_split_base_url", migrate_split_base_url),
         (8, "migrate_add_parent_id", migrate_add_parent_id),
+        (9, "migrate_provider_metadata", migrate_provider_metadata),
+        (10, "remove_seed_custom_provider", remove_seed_custom_provider),
     ];
 
     let current = current_version(conn);
@@ -168,50 +170,49 @@ fn seed_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    // (name, display_name, icon, base_url, api_type, preset_id)
-    let providers: Vec<(&str, &str, &str, &str, &str, &str)> = vec![
-        ("openai", "OpenAI", "🤖", "https://api.openai.com/v1", "openai", "openai"),
-        ("anthropic", "Anthropic", "🟠", "https://api.anthropic.com/v1", "openai", "anthropic"),
-        ("google", "Google Gemini", "🔵", "https://generativelanguage.googleapis.com/v1beta", "openai", "google"),
-        ("azure_openai", "Azure OpenAI", "☁️", "", "openai", "azure_openai"),
-        ("aws_bedrock", "AWS Bedrock", "🟡", "", "openai", "aws_bedrock"),
-        ("deepseek", "DeepSeek", "🐋", "https://api.deepseek.com/v1", "openai", "deepseek"),
-        ("qwen", "通义千问", "☁️", "https://dashscope.aliyuncs.com/compatible-mode/v1", "openai", "qwen"),
-        ("zhipu", "智谱 GLM", "🟣", "https://open.bigmodel.cn/api/paas/v4", "openai", "zhipu"),
-        ("moonshot", "Kimi (月之暗面)", "🌙", "https://api.moonshot.cn/v1", "openai", "moonshot"),
-        ("wenxin", "百度文心", "🔴", "https://aip.baidubce.com", "openai", "wenxin"),
-        ("spark", "讯飞星火", "✨", "https://spark-api-open.xf-yun.com/v1", "openai", "spark"),
-        ("yi", "零一万物", "⚡", "https://api.lingyiwanwu.com/v1", "openai", "yi"),
-        ("minimax", "MiniMax", "🟢", "https://api.minimax.chat/v1", "openai", "minimax"),
-        ("baichuan", "百川智能", "🟤", "https://api.baichuan-ai.com/v1", "openai", "baichuan"),
-        ("cohere", "Cohere", "🔷", "https://api.cohere.ai/v1", "openai", "cohere"),
-        ("mistral", "Mistral AI", "🟠", "https://api.mistral.ai/v1", "openai", "mistral"),
-        ("custom", "自定义供应商", "🔗", "", "openai", ""),
+    // (name, display_name, icon, base_url, api_type, preset_id, category)
+    let providers: Vec<(&str, &str, &str, &str, &str, &str, &str)> = vec![
+        ("openai", "OpenAI", "🤖", "https://api.openai.com/v1", "openai", "openai", "official"),
+        ("anthropic", "Anthropic", "🟠", "https://api.anthropic.com/v1", "openai", "anthropic", "official"),
+        ("google", "Google Gemini", "🔵", "https://generativelanguage.googleapis.com/v1beta", "openai", "google", "official"),
+        ("azure_openai", "Azure OpenAI", "☁️", "", "openai", "azure_openai", "cloud_provider"),
+        ("aws_bedrock", "AWS Bedrock", "🟡", "", "openai", "aws_bedrock", "cloud_provider"),
+        ("deepseek", "DeepSeek", "🐋", "https://api.deepseek.com/v1", "openai", "deepseek", "official"),
+        ("qwen", "通义千问", "☁️", "https://dashscope.aliyuncs.com/compatible-mode/v1", "openai", "qwen", "cn_official"),
+        ("zhipu", "智谱 GLM", "🟣", "https://open.bigmodel.cn/api/paas/v4", "openai", "zhipu", "cn_official"),
+        ("moonshot", "Kimi (月之暗面)", "🌙", "https://api.moonshot.cn/v1", "openai", "moonshot", "cn_official"),
+        ("wenxin", "百度文心", "🔴", "https://aip.baidubce.com", "openai", "wenxin", "cn_official"),
+        ("spark", "讯飞星火", "✨", "https://spark-api-open.xf-yun.com/v1", "openai", "spark", "cn_official"),
+        ("yi", "零一万物", "⚡", "https://api.lingyiwanwu.com/v1", "openai", "yi", "cn_official"),
+        ("minimax", "MiniMax", "🟢", "https://api.minimax.chat/v1", "openai", "minimax", "cn_official"),
+        ("baichuan", "百川智能", "🟤", "https://api.baichuan-ai.com/v1", "openai", "baichuan", "cn_official"),
+        ("cohere", "Cohere", "🔷", "https://api.cohere.ai/v1", "openai", "cohere", "third_party"),
+        ("mistral", "Mistral AI", "🟠", "https://api.mistral.ai/v1", "openai", "mistral", "third_party"),
     ];
 
     let mut stmt = conn.prepare(
-        "INSERT INTO providers (name, display_name, icon, base_url, api_type, preset_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        "INSERT INTO providers (name, display_name, icon, base_url, api_type, preset_id, category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
     )?;
 
-    for (name, display_name, icon, base_url, api_type, preset_id) in providers {
-        stmt.execute(rusqlite::params![name, display_name, icon, base_url, api_type, preset_id])?;
+    for (name, display_name, icon, base_url, api_type, preset_id, category) in providers {
+        stmt.execute(rusqlite::params![name, display_name, icon, base_url, api_type, preset_id, category])?;
     }
 
     Ok(())
 }
 
 fn seed_missing_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
-    // (name, display_name, icon, base_url, api_type, preset_id)
-    let new_providers: Vec<(&str, &str, &str, &str, &str, &str)> = vec![
-        ("azure_openai", "Azure OpenAI", "☁️", "", "openai", "azure_openai"),
-        ("aws_bedrock", "AWS Bedrock", "🟡", "", "openai", "aws_bedrock"),
-        ("minimax", "MiniMax", "🟢", "https://api.minimax.chat/v1", "openai", "minimax"),
-        ("baichuan", "百川智能", "🟤", "https://api.baichuan-ai.com/v1", "openai", "baichuan"),
-        ("cohere", "Cohere", "🔷", "https://api.cohere.ai/v1", "openai", "cohere"),
-        ("mistral", "Mistral AI", "🟠", "https://api.mistral.ai/v1", "openai", "mistral"),
+    // (name, display_name, icon, base_url, api_type, preset_id, category)
+    let new_providers: Vec<(&str, &str, &str, &str, &str, &str, &str)> = vec![
+        ("azure_openai", "Azure OpenAI", "☁️", "", "openai", "azure_openai", "cloud_provider"),
+        ("aws_bedrock", "AWS Bedrock", "🟡", "", "openai", "aws_bedrock", "cloud_provider"),
+        ("minimax", "MiniMax", "🟢", "https://api.minimax.chat/v1", "openai", "minimax", "cn_official"),
+        ("baichuan", "百川智能", "🟤", "https://api.baichuan-ai.com/v1", "openai", "baichuan", "cn_official"),
+        ("cohere", "Cohere", "🔷", "https://api.cohere.ai/v1", "openai", "cohere", "third_party"),
+        ("mistral", "Mistral AI", "🟠", "https://api.mistral.ai/v1", "openai", "mistral", "third_party"),
     ];
 
-    for (name, display_name, icon, base_url, api_type, preset_id) in new_providers {
+    for (name, display_name, icon, base_url, api_type, preset_id, category) in new_providers {
         let exists: bool = conn
             .query_row(
                 "SELECT COUNT(*) FROM providers WHERE name = ?1",
@@ -222,8 +223,8 @@ fn seed_missing_providers(conn: &Connection) -> Result<(), Box<dyn std::error::E
 
         if !exists {
             conn.execute(
-                "INSERT INTO providers (name, display_name, icon, base_url, api_type, preset_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                rusqlite::params![name, display_name, icon, base_url, api_type, preset_id],
+                "INSERT INTO providers (name, display_name, icon, base_url, api_type, preset_id, category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                rusqlite::params![name, display_name, icon, base_url, api_type, preset_id, category],
             )?;
         }
     }
@@ -233,7 +234,6 @@ fn seed_missing_providers(conn: &Connection) -> Result<(), Box<dyn std::error::E
         ("moonshot", "display_name", "Kimi (月之暗面)"),
         ("wenxin", "display_name", "百度文心"),
         ("wenxin", "icon", "🔴"),
-        ("custom", "display_name", "自定义供应商"),
     ];
 
     for (name, field, new_value) in renames {
@@ -307,6 +307,94 @@ fn migrate_add_parent_id(conn: &Connection) -> Result<(), Box<dyn std::error::Er
 
     if !existing_columns.contains("parent_id") {
         conn.execute("ALTER TABLE api_keys ADD COLUMN parent_id INTEGER REFERENCES api_keys(id) ON DELETE CASCADE", [])?;
+    }
+
+    Ok(())
+}
+
+fn migrate_provider_metadata(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    let columns_to_add: Vec<(&str, &str)> = vec![
+        ("openai_base_url", "TEXT"),
+        ("anthropic_base_url", "TEXT"),
+        ("description", "TEXT"),
+    ];
+
+    let mut existing_columns = std::collections::HashSet::new();
+    {
+        let mut stmt = conn.prepare("PRAGMA table_info(providers)").map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+        let mut rows = stmt.query([]).map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+        while let Some(row) = rows.next().map_err(|e| Box::<dyn std::error::Error>::from(e))? {
+            let column_name: String = row.get(1).map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+            existing_columns.insert(column_name);
+        }
+    }
+
+    for (column_name, column_type) in columns_to_add {
+        if !existing_columns.contains(column_name) {
+            conn.execute(&format!("ALTER TABLE providers ADD COLUMN {} {}", column_name, column_type), [])?;
+        }
+    }
+
+    // Migrate data from api_keys to providers (take first non-null value per provider)
+    conn.execute(
+        "UPDATE providers SET openai_base_url = (
+            SELECT openai_base_url FROM api_keys WHERE provider_id = providers.id AND openai_base_url IS NOT NULL AND openai_base_url != '' LIMIT 1
+        ) WHERE openai_base_url IS NULL",
+        [],
+    )?;
+    conn.execute(
+        "UPDATE providers SET anthropic_base_url = (
+            SELECT anthropic_base_url FROM api_keys WHERE provider_id = providers.id AND anthropic_base_url IS NOT NULL AND anthropic_base_url != '' LIMIT 1
+        ) WHERE anthropic_base_url IS NULL",
+        [],
+    )?;
+    conn.execute(
+        "UPDATE providers SET description = (
+            SELECT description FROM api_keys WHERE provider_id = providers.id AND description IS NOT NULL AND description != '' LIMIT 1
+        ) WHERE description IS NULL",
+        [],
+    )?;
+
+    Ok(())
+}
+
+fn remove_seed_custom_provider(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Set category for existing seed providers that have NULL category
+    let category_map: Vec<(&str, &str)> = vec![
+        ("openai", "official"),
+        ("anthropic", "official"),
+        ("google", "official"),
+        ("azure_openai", "cloud_provider"),
+        ("aws_bedrock", "cloud_provider"),
+        ("deepseek", "official"),
+        ("qwen", "cn_official"),
+        ("zhipu", "cn_official"),
+        ("moonshot", "cn_official"),
+        ("wenxin", "cn_official"),
+        ("spark", "cn_official"),
+        ("yi", "cn_official"),
+        ("minimax", "cn_official"),
+        ("baichuan", "cn_official"),
+        ("cohere", "third_party"),
+        ("mistral", "third_party"),
+    ];
+
+    for (name, category) in &category_map {
+        let _ = conn.execute(
+            "UPDATE providers SET category = ?1 WHERE name = ?2 AND category IS NULL",
+            rusqlite::params![category, name],
+        );
+    }
+
+    // 2. Remove the seed "custom" provider (name='custom') if it has no API keys
+    let key_count: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM api_keys WHERE provider_id = (SELECT id FROM providers WHERE name = 'custom' LIMIT 1)",
+        [],
+        |row| row.get(0),
+    ).unwrap_or(0);
+
+    if key_count == 0 {
+        conn.execute("DELETE FROM providers WHERE name = 'custom' AND category IS NULL", [])?;
     }
 
     Ok(())

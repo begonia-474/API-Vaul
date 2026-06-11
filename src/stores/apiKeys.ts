@@ -18,8 +18,7 @@ export const useApiKeysStore = defineStore('apiKeys', () => {
           k.name.toLowerCase().includes(q) ||
           k.masked_preview.toLowerCase().includes(q) ||
           k.provider_display_name.toLowerCase().includes(q) ||
-          k.provider_name.toLowerCase().includes(q) ||
-          (k.description ?? '').toLowerCase().includes(q),
+          k.provider_name.toLowerCase().includes(q),
       )
     }
 
@@ -90,15 +89,6 @@ export const useApiKeysStore = defineStore('apiKeys', () => {
     }
   }
 
-  async function getChildKeys(parentId: number): Promise<ApiKeyView[]> {
-    try {
-      return await invoke<ApiKeyView[]>('get_child_keys', { parentId })
-    } catch (err) {
-      console.error('Failed to fetch child keys:', err)
-      return []
-    }
-  }
-
   function getKeyById(id: number): ApiKeyView | undefined {
     return keys.value.find((k) => k.id === id)
   }
@@ -118,7 +108,6 @@ export const useApiKeysStore = defineStore('apiKeys', () => {
     updateKey,
     deleteKey,
     getDecryptedKey,
-    getChildKeys,
     getKeyById,
     setSearch,
   }

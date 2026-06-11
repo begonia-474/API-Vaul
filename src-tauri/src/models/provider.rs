@@ -13,5 +13,8 @@ pub struct Provider {
     pub website_url: Option<String>,
     pub api_key_url: Option<String>,
     pub preset_id: Option<String>,
+    pub openai_base_url: Option<String>,
+    pub anthropic_base_url: Option<String>,
+    pub description: Option<String>,
     pub created_at: String,
 }

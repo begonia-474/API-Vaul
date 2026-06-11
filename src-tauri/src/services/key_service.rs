@@ -27,7 +27,7 @@ pub fn get_all_keys(db: &Database) -> Result<Vec<ApiKeyView>, AppError> {
     let conn = db.conn.lock().unwrap();
     let mut stmt = conn
         .prepare(&format!(
-            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.parent_id IS NULL ORDER BY k.updated_at DESC",
+            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id ORDER BY k.updated_at DESC",
             SELECT_VIEW_COLS,
         ))
         .map_err(AppError::Database)?;
@@ -49,7 +49,7 @@ pub fn search_keys(db: &Database, query: &str) -> Result<Vec<ApiKeyView>, AppErr
     let search_pattern = format!("%{}%", query);
     let mut stmt = conn
         .prepare(&format!(
-            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.parent_id IS NULL AND (k.name LIKE ?1 OR p.display_name LIKE ?1 OR k.description LIKE ?1 OR p.name LIKE ?1) ORDER BY k.updated_at DESC",
+            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE (k.name LIKE ?1 OR k.description LIKE ?1 OR p.display_name LIKE ?1 OR p.name LIKE ?1) ORDER BY k.updated_at DESC",
             SELECT_VIEW_COLS,
         ))
         .map_err(AppError::Database)?;
@@ -66,17 +66,17 @@ pub fn search_keys(db: &Database, query: &str) -> Result<Vec<ApiKeyView>, AppErr
     Ok(keys)
 }
 
-pub fn get_child_keys(db: &Database, parent_id: i64) -> Result<Vec<ApiKeyView>, AppError> {
+pub fn get_keys_for_provider(db: &Database, provider_id: i64) -> Result<Vec<ApiKeyView>, AppError> {
     let conn = db.conn.lock().unwrap();
     let mut stmt = conn
         .prepare(&format!(
-            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.parent_id = ?1 ORDER BY k.created_at ASC",
+            "SELECT {} FROM api_keys k JOIN providers p ON k.provider_id = p.id WHERE k.provider_id = ?1 ORDER BY k.created_at ASC",
             SELECT_VIEW_COLS,
         ))
         .map_err(AppError::Database)?;
 
     let rows = stmt
-        .query_map([parent_id], row_to_view)
+        .query_map([provider_id], row_to_view)
         .map_err(AppError::Database)?;
 
     let mut keys = Vec::new();

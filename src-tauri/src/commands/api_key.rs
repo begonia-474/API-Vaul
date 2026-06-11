@@ -75,16 +75,6 @@ pub fn delete_key(
 }
 
 #[tauri::command]
-pub fn get_child_keys(
-    parent_id: i64,
-    db: State<'_, Database>,
-    auth_state: State<'_, AuthState>,
-) -> Result<Vec<ApiKeyView>, AppError> {
-    require_unlocked(&auth_state)?;
-    key_service::get_child_keys(&db, parent_id)
-}
-
-#[tauri::command]
 pub fn get_decrypted_key(
     id: i64,
     db: State<'_, Database>,
