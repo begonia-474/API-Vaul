@@ -41,6 +41,7 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (8, "migrate_add_parent_id", migrate_add_parent_id),
         (9, "migrate_provider_metadata", migrate_provider_metadata),
         (10, "remove_seed_custom_provider", remove_seed_custom_provider),
+        (11, "remove_provider_name_unique", remove_provider_name_unique),
     ];
 
     let current = current_version(conn);
@@ -60,7 +61,7 @@ fn create_tables(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         "
         CREATE TABLE IF NOT EXISTS providers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
             display_name TEXT NOT NULL,
             icon TEXT,
             base_url TEXT NOT NULL,
@@ -396,6 +397,45 @@ fn remove_seed_custom_provider(conn: &Connection) -> Result<(), Box<dyn std::err
     if key_count == 0 {
         conn.execute("DELETE FROM providers WHERE name = 'custom' AND category IS NULL", [])?;
     }
+
+    Ok(())
+}
+
+fn remove_provider_name_unique(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    // SQLite doesn't support ALTER TABLE to remove UNIQUE constraint.
+    // Recreate the table without UNIQUE on name.
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS providers_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            display_name TEXT NOT NULL,
+            icon TEXT,
+            base_url TEXT NOT NULL,
+            api_type TEXT NOT NULL DEFAULT 'openai',
+            compat_type TEXT,
+            category TEXT,
+            icon_color TEXT,
+            website_url TEXT,
+            api_key_url TEXT,
+            preset_id TEXT,
+            openai_base_url TEXT,
+            anthropic_base_url TEXT,
+            description TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        INSERT INTO providers_new
+            SELECT id, name, display_name, icon, base_url, api_type, compat_type, category,
+                   icon_color, website_url, api_key_url, preset_id, openai_base_url, anthropic_base_url,
+                   description, COALESCE(created_at, datetime('now'))
+            FROM providers;
+
+        DROP TABLE providers;
+
+        ALTER TABLE providers_new RENAME TO providers;
+        ",
+    )?;
 
     Ok(())
 }

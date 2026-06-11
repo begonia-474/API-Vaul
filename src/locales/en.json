@@ -57,7 +57,8 @@
     "descriptionPlaceholder": "Optional description to distinguish accounts",
     "cancel": "Cancel",
     "save": "Save",
-    "add": "Add"
+    "add": "Add",
+    "newCard": "Create New Card"
   },
   "keyDetail": {
     "back": "Back",
@@ -67,6 +68,8 @@
     "noDescription": "No description",
     "createdAt": "Created",
     "edit": "Edit",
+    "providerName": "Name",
+    "identifier": "Identifier",
     "editMetadata": "Edit Provider Info",
     "metadataSaved": "Provider info saved",
     "delete": "Delete",

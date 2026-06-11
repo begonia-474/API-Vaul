@@ -26,17 +26,15 @@ const apiKeysStore = useApiKeysStore()
 const providersStore = useProvidersStore()
 
 const providerId = computed(() => Number(route.params.id))
-const description = computed(() => (route.query.desc as string) ?? '')
 const provider = computed(() => providersStore.getProviderById(providerId.value))
 const groupKeys = computed(() =>
-  apiKeysStore.keys.filter(
-    (k) => k.provider_id === providerId.value && (k.description ?? '') === description.value,
-  ),
+  apiKeysStore.keys.filter((k) => k.provider_id === providerId.value),
 )
 const pageTitle = computed(() => {
   if (!provider.value) return t('keyDetail.noProvider')
-  return description.value
-    ? `${provider.value.display_name} - ${description.value}`
+  const desc = provider.value.description?.trim()
+  return desc
+    ? `${provider.value.display_name} - ${desc}`
     : provider.value.display_name
 })
 
@@ -48,7 +46,7 @@ const revealedKeys = ref<Map<number, string>>(new Map())
 
 // Provider info editing
 const editingProviderInfo = ref(false)
-const providerEditForm = ref({ openai_base_url: '', anthropic_base_url: '', description: '' })
+const providerEditForm = ref({ name: '', display_name: '', openai_base_url: '', anthropic_base_url: '', description: '' })
 
 // Key editing
 const editingKeyId = ref<number | null>(null)
@@ -120,11 +118,13 @@ async function toggleRevealKey(id: number) {
 
 // Provider info editing
 function startEditProviderInfo() {
-  const first = groupKeys.value[0]
+  if (!provider.value) return
   providerEditForm.value = {
-    openai_base_url: first?.openai_base_url ?? '',
-    anthropic_base_url: first?.anthropic_base_url ?? '',
-    description: first?.description ?? '',
+    name: provider.value.name ?? '',
+    display_name: provider.value.display_name ?? '',
+    openai_base_url: provider.value.openai_base_url ?? '',
+    anthropic_base_url: provider.value.anthropic_base_url ?? '',
+    description: provider.value.description ?? '',
   }
   editingProviderInfo.value = true
 }
@@ -134,18 +134,18 @@ function cancelEditProviderInfo() {
 }
 
 async function saveProviderInfo() {
-  for (const key of groupKeys.value) {
-    await apiKeysStore.updateKey({
-      id: key.id,
-      provider_id: key.provider_id,
-      name: key.name,
-      openai_base_url: providerEditForm.value.openai_base_url || undefined,
-      anthropic_base_url: providerEditForm.value.anthropic_base_url || undefined,
-      description: providerEditForm.value.description || undefined,
-    })
+  const ok = await providersStore.updateProviderMetadata(
+    providerId.value,
+    providerEditForm.value.name || undefined,
+    providerEditForm.value.display_name || undefined,
+    providerEditForm.value.openai_base_url || undefined,
+    providerEditForm.value.anthropic_base_url || undefined,
+    providerEditForm.value.description || undefined,
+  )
+  if (ok) {
+    editingProviderInfo.value = false
+    message.success(t('keyDetail.metadataSaved'))
   }
-  editingProviderInfo.value = false
-  message.success(t('keyDetail.metadataSaved'))
 }
 
 // Key editing
@@ -167,9 +167,6 @@ async function saveEditKey(key: any) {
     provider_id: key.provider_id,
     name: editForm.value.name,
     raw_key: editForm.value.raw_key || undefined,
-    openai_base_url: key.openai_base_url ?? undefined,
-    anthropic_base_url: key.anthropic_base_url ?? undefined,
-    description: key.description ?? undefined,
   })
   if (ok) {
     editingKeyId.value = null
@@ -183,14 +180,10 @@ async function handleAddKey() {
   if (!newKeyRaw.value.trim()) return
   addKeyLoading.value = true
   const keyName = newKeyName.value.trim() || `Key-${Date.now().toString(36)}`
-  const firstKey = groupKeys.value[0]
   const ok = await apiKeysStore.createKey({
     provider_id: providerId.value,
     name: keyName,
     raw_key: newKeyRaw.value.trim(),
-    description: firstKey?.description ?? undefined,
-    openai_base_url: firstKey?.openai_base_url ?? undefined,
-    anthropic_base_url: firstKey?.anthropic_base_url ?? undefined,
   })
   addKeyLoading.value = false
   if (ok) {
@@ -233,25 +226,31 @@ async function handleAddKey() {
 
         <!-- View mode -->
         <template v-if="!editingProviderInfo">
-          <n-descriptions v-if="groupKeys.length > 0" bordered :column="1" label-placement="left">
-            <n-descriptions-item v-if="groupKeys[0].openai_base_url" :label="t('keyDetail.openaiBaseUrl')">
+          <n-descriptions v-if="provider" bordered :column="1" label-placement="left">
+            <n-descriptions-item :label="t('keyDetail.providerName')">
+              {{ provider.display_name }}
+            </n-descriptions-item>
+            <n-descriptions-item :label="t('keyDetail.identifier')">
+              <code>{{ provider.name }}</code>
+            </n-descriptions-item>
+            <n-descriptions-item v-if="provider.openai_base_url" :label="t('keyDetail.openaiBaseUrl')">
               <div class="url-row">
-                <code>{{ groupKeys[0].openai_base_url }}</code>
-                <n-button quaternary size="tiny" @click="handleCopyUrl(groupKeys[0].openai_base_url!)">
+                <code>{{ provider.openai_base_url }}</code>
+                <n-button quaternary size="tiny" @click="handleCopyUrl(provider.openai_base_url!)">
                   <template #icon><n-icon :component="CopyOutline" /></template>
                 </n-button>
               </div>
             </n-descriptions-item>
-            <n-descriptions-item v-if="groupKeys[0].anthropic_base_url" :label="t('keyDetail.anthropicBaseUrl')">
+            <n-descriptions-item v-if="provider.anthropic_base_url" :label="t('keyDetail.anthropicBaseUrl')">
               <div class="url-row">
-                <code>{{ groupKeys[0].anthropic_base_url }}</code>
-                <n-button quaternary size="tiny" @click="handleCopyUrl(groupKeys[0].anthropic_base_url!)">
+                <code>{{ provider.anthropic_base_url }}</code>
+                <n-button quaternary size="tiny" @click="handleCopyUrl(provider.anthropic_base_url!)">
                   <template #icon><n-icon :component="CopyOutline" /></template>
                 </n-button>
               </div>
             </n-descriptions-item>
-            <n-descriptions-item v-if="groupKeys[0].description" :label="t('keyDetail.description')">
-              {{ groupKeys[0].description }}
+            <n-descriptions-item v-if="provider.description" :label="t('keyDetail.description')">
+              {{ provider.description }}
             </n-descriptions-item>
           </n-descriptions>
         </template>
@@ -259,6 +258,14 @@ async function handleAddKey() {
         <!-- Edit mode -->
         <template v-else>
           <div class="edit-provider-form">
+            <div class="edit-field">
+              <label>{{ t('keyDetail.providerName') }}</label>
+              <n-input v-model:value="providerEditForm.display_name" placeholder=" " size="small" />
+            </div>
+            <div class="edit-field">
+              <label>{{ t('keyDetail.identifier') }}</label>
+              <n-input v-model:value="providerEditForm.name" placeholder=" " size="small" />
+            </div>
             <div class="edit-field">
               <label>{{ t('keyDetail.openaiBaseUrl') }}</label>
               <n-input v-model:value="providerEditForm.openai_base_url" placeholder=" " size="small" />

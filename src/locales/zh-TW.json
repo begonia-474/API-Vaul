@@ -57,7 +57,8 @@
     "descriptionPlaceholder": "可選描述資訊，用於區分不同帳號",
     "cancel": "取消",
     "save": "儲存",
-    "add": "新增"
+    "add": "新增",
+    "newCard": "建立新卡片"
   },
   "keyDetail": {
     "back": "返回",
@@ -67,6 +68,8 @@
     "noDescription": "尚無描述",
     "createdAt": "建立時間",
     "edit": "編輯",
+    "providerName": "名稱",
+    "identifier": "識別碼",
     "editMetadata": "編輯供應商資訊",
     "metadataSaved": "供應商資訊已儲存",
     "delete": "刪除",

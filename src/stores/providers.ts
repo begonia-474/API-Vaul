@@ -34,23 +34,21 @@ export const useProvidersStore = defineStore('providers', () => {
   const keyGroups = computed<KeyGroup[]>(() => {
     const apiKeysStore = useApiKeysStore()
     const allKeys = apiKeysStore.keys
-    const groupMap = new Map<string, KeyGroup>()
+    const groupMap = new Map<number, KeyGroup>()
 
     for (const key of allKeys) {
-      const desc = (key.description ?? '').trim()
-      const groupKey = `${key.provider_id}::${desc}`
-      if (!groupMap.has(groupKey)) {
+      if (!groupMap.has(key.provider_id)) {
         const provider = providers.value.find((p) => p.id === key.provider_id)
         if (provider) {
-          groupMap.set(groupKey, {
-            key: groupKey,
+          groupMap.set(key.provider_id, {
+            key: `${key.provider_id}`,
             provider,
-            description: desc,
+            description: provider.description ?? '',
             keys: [],
           })
         }
       }
-      groupMap.get(groupKey)!.keys.push(key)
+      groupMap.get(key.provider_id)!.keys.push(key)
     }
 
     return Array.from(groupMap.values())
@@ -103,6 +101,8 @@ export const useProvidersStore = defineStore('providers', () => {
 
   async function updateProviderMetadata(
     id: number,
+    name?: string,
+    displayName?: string,
     openaiBaseUrl?: string,
     anthropicBaseUrl?: string,
     description?: string,
@@ -110,6 +110,8 @@ export const useProvidersStore = defineStore('providers', () => {
     try {
       await invoke<Provider>('update_provider_metadata', {
         id,
+        name: name || null,
+        displayName: displayName || null,
         openaiBaseUrl: openaiBaseUrl || null,
         anthropicBaseUrl: anthropicBaseUrl || null,
         description: description || null,
@@ -131,6 +133,7 @@ export const useProvidersStore = defineStore('providers', () => {
     openai_base_url?: string
     anthropic_base_url?: string
     description?: string
+    preset_id?: string
   }): Promise<Provider | null> {
     try {
       const provider = await invoke<Provider>('create_provider', {
@@ -141,6 +144,7 @@ export const useProvidersStore = defineStore('providers', () => {
         openaiBaseUrl: params.openai_base_url || null,
         anthropicBaseUrl: params.anthropic_base_url || null,
         description: params.description || null,
+        presetId: params.preset_id || null,
       })
       await fetchProviders()
       return provider

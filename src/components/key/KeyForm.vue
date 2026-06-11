@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const CUSTOM_PROVIDER_VALUE = '__custom__'
+const NEW_CARD_VALUE = '__new_card__'
 
 const props = defineProps<{
   show: boolean
@@ -26,18 +26,18 @@ const apiKeysStore = useApiKeysStore()
 const providersStore = useProvidersStore()
 
 const form = ref({
-  provider_id: null as number | string | null,
-  name: '',
-  raw_key: '',
-  custom_name: '',
-  custom_display_name: '',
-  custom_icon: '',
+  selected: null as number | string | null, // provider_id (existing) or NEW_CARD_VALUE
+  provider_name: '',
+  display_name: '',
+  icon: '',
   openai_base_url: '',
   anthropic_base_url: '',
   description: '',
+  name: '',
+  raw_key: '',
 })
 
-const isCustomProvider = computed(() => form.value.provider_id === CUSTOM_PROVIDER_VALUE)
+const isNewCard = computed(() => form.value.selected === NEW_CARD_VALUE)
 const submitting = ref(false)
 
 onMounted(() => {
@@ -56,35 +56,37 @@ watch(
 
       if (props.editKey) {
         form.value = {
-          provider_id: props.editKey.provider_id,
-          name: props.editKey.name,
-          raw_key: '',
-          custom_name: '',
-          custom_display_name: '',
-          custom_icon: '',
+          selected: props.editKey.provider_id,
+          provider_name: '',
+          display_name: '',
+          icon: '',
           openai_base_url: '',
           anthropic_base_url: '',
           description: '',
+          name: props.editKey.name,
+          raw_key: '',
         }
       } else {
         form.value = {
-          provider_id: props.defaultProviderId ?? null,
-          name: '',
-          raw_key: '',
-          custom_name: '',
-          custom_display_name: '',
-          custom_icon: '',
+          selected: props.defaultProviderId ?? null,
+          provider_name: '',
+          display_name: '',
+          icon: '',
           openai_base_url: '',
           anthropic_base_url: '',
           description: '',
+          name: '',
+          raw_key: '',
         }
       }
     }
   },
 )
 
+const builtInCategories = ['official', 'cn_official', 'cloud_provider', 'aggregator', 'third_party']
+
 const providerOptions = computed(() => {
-  const builtInCategories = ['official', 'cn_official', 'cloud_provider', 'aggregator', 'third_party']
+  // Built-in providers only
   const builtIn = providersStore.providers
     .filter((p) => p.category && builtInCategories.includes(p.category))
     .map((p) => ({
@@ -94,19 +96,19 @@ const providerOptions = computed(() => {
       presetId: p.preset_id,
     }))
 
-  return [
-    ...builtIn,
-    {
-      label: t('keyForm.addCustomProvider'),
-      value: CUSTOM_PROVIDER_VALUE,
-      icon: null,
-      presetId: null,
-    },
-  ]
+  const options: any[] = [...builtIn]
+  options.push({
+    label: t('keyForm.newCard'),
+    value: NEW_CARD_VALUE,
+    icon: null,
+    presetId: null,
+  })
+
+  return options
 })
 
 function renderLabel(option: { label: string; icon?: string | null; presetId?: string | null; value?: any }) {
-  if (option.value === CUSTOM_PROVIDER_VALUE) {
+  if (option.value === NEW_CARD_VALUE) {
     return h('div', { style: 'display: flex; align-items: center; gap: 8px; color: var(--primary-color);' }, [
       h('span', { style: 'font-size: 16px;' }, '+'),
       h('span', null, option.label),
@@ -125,31 +127,61 @@ function renderLabel(option: { label: string; icon?: string | null; presetId?: s
   ])
 }
 
+// When selecting a built-in provider, prefill display name
+watch(
+  () => form.value.selected,
+  (val) => {
+    if (typeof val === 'number') {
+      const p = providersStore.providers.find((p) => p.id === val)
+      if (p) {
+        // Check if this is a built-in provider (no keys yet)
+        const hasKeys = apiKeysStore.keys.some((k) => k.provider_id === val)
+        if (!hasKeys) {
+          // Prefill for new card from built-in
+          form.value.provider_name = p.name
+          form.value.display_name = p.display_name
+          form.value.icon = p.icon ?? ''
+          form.value.openai_base_url = ''
+          form.value.anthropic_base_url = ''
+          form.value.description = ''
+        }
+      }
+    }
+  },
+)
+
 async function handleSubmit() {
-  if (!form.value.provider_id) return
+  if (!form.value.selected) return
   if (!form.value.raw_key.trim()) return
 
   submitting.value = true
   try {
     let providerId: number
 
-    if (isCustomProvider.value) {
-      if (!form.value.custom_display_name.trim()) return
-
-      const name = form.value.custom_name.trim() || form.value.custom_display_name.trim().toLowerCase().replace(/\s+/g, '_')
+    if (isNewCard.value || isBuiltInSelection.value) {
+      // Create new card
+      if (!form.value.display_name.trim()) return
+      const name = form.value.provider_name.trim() || form.value.display_name.trim().toLowerCase().replace(/\s+/g, '_')
+      // Get preset_id from built-in provider if applicable
+      let presetId: string | undefined
+      if (isBuiltInSelection.value && typeof form.value.selected === 'number') {
+        const builtin = providersStore.providers.find((p) => p.id === form.value.selected)
+        presetId = builtin?.preset_id ?? undefined
+      }
       const newProvider = await providersStore.createProvider({
         name,
-        display_name: form.value.custom_display_name.trim(),
-        icon: form.value.custom_icon.trim() || undefined,
+        display_name: form.value.display_name.trim(),
+        icon: form.value.icon.trim() || undefined,
         category: 'custom',
         openai_base_url: form.value.openai_base_url.trim() || undefined,
         anthropic_base_url: form.value.anthropic_base_url.trim() || undefined,
         description: form.value.description.trim() || undefined,
+        preset_id: presetId,
       })
       if (!newProvider) return
       providerId = newProvider.id
     } else {
-      providerId = form.value.provider_id as number
+      return
     }
 
     const keyName = form.value.name.trim() || `Key-${Date.now().toString(36)}`
@@ -160,18 +192,12 @@ async function handleSubmit() {
         provider_id: providerId,
         name: keyName,
         raw_key: form.value.raw_key || undefined,
-        description: form.value.description.trim() || undefined,
-        openai_base_url: form.value.openai_base_url.trim() || undefined,
-        anthropic_base_url: form.value.anthropic_base_url.trim() || undefined,
       })
     } else {
       await apiKeysStore.createKey({
         provider_id: providerId,
         name: keyName,
         raw_key: form.value.raw_key,
-        description: form.value.description.trim() || undefined,
-        openai_base_url: form.value.openai_base_url.trim() || undefined,
-        anthropic_base_url: form.value.anthropic_base_url.trim() || undefined,
       })
     }
 
@@ -181,6 +207,15 @@ async function handleSubmit() {
     submitting.value = false
   }
 }
+
+// Check if selected is a built-in provider (number, but no keys yet)
+const isBuiltInSelection = computed(() => {
+  if (typeof form.value.selected !== 'number') return false
+  return !apiKeysStore.keys.some((k) => k.provider_id === form.value.selected)
+})
+
+// Show full form when creating new card
+const showFullForm = computed(() => isNewCard.value || isBuiltInSelection.value)
 </script>
 
 <template>
@@ -194,7 +229,7 @@ async function handleSubmit() {
     <n-form label-placement="left" label-width="120">
       <n-form-item :label="t('keyForm.provider')">
         <n-select
-          v-model:value="form.provider_id"
+          v-model:value="form.selected"
           :options="providerOptions"
           :render-label="renderLabel"
           :placeholder="t('keyForm.providerPlaceholder')"
@@ -202,16 +237,25 @@ async function handleSubmit() {
         />
       </n-form-item>
 
-      <!-- Custom provider fields -->
-      <template v-if="isCustomProvider">
+      <!-- New card fields -->
+      <template v-if="showFullForm && !editKey">
         <n-form-item :label="t('keyForm.customDisplayName')">
-          <n-input v-model:value="form.custom_display_name" placeholder=" " />
+          <n-input v-model:value="form.display_name" placeholder=" " />
         </n-form-item>
         <n-form-item :label="t('keyForm.customName')">
-          <n-input v-model:value="form.custom_name" placeholder=" " />
+          <n-input v-model:value="form.provider_name" placeholder=" " />
         </n-form-item>
-        <n-form-item :label="t('keyForm.customIcon')">
-          <n-input v-model:value="form.custom_icon" placeholder=" " />
+        <n-form-item v-if="isNewCard" :label="t('keyForm.customIcon')">
+          <n-input v-model:value="form.icon" placeholder=" " />
+        </n-form-item>
+        <n-form-item :label="t('keyForm.openaiBaseUrl')">
+          <n-input v-model:value="form.openai_base_url" placeholder=" " />
+        </n-form-item>
+        <n-form-item :label="t('keyForm.anthropicBaseUrl')">
+          <n-input v-model:value="form.anthropic_base_url" placeholder=" " />
+        </n-form-item>
+        <n-form-item :label="t('keyForm.description')">
+          <n-input v-model:value="form.description" type="textarea" :rows="2" placeholder=" " />
         </n-form-item>
       </template>
 
@@ -227,24 +271,6 @@ async function handleSubmit() {
           placeholder=" "
         />
       </n-form-item>
-
-      <!-- Base URLs and description -->
-      <template v-if="form.provider_id">
-        <n-form-item :label="t('keyForm.openaiBaseUrl')">
-          <n-input v-model:value="form.openai_base_url" placeholder=" " />
-        </n-form-item>
-        <n-form-item :label="t('keyForm.anthropicBaseUrl')">
-          <n-input v-model:value="form.anthropic_base_url" placeholder=" " />
-        </n-form-item>
-        <n-form-item :label="t('keyForm.description')">
-          <n-input
-            v-model:value="form.description"
-            type="textarea"
-            :rows="2"
-            placeholder=" "
-          />
-        </n-form-item>
-      </template>
     </n-form>
 
     <template #action>

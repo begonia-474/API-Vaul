@@ -29,6 +29,7 @@ pub fn create_provider(
     openai_base_url: Option<String>,
     anthropic_base_url: Option<String>,
     description: Option<String>,
+    preset_id: Option<String>,
     db: State<'_, Database>,
     auth_state: State<'_, AuthState>,
 ) -> Result<Provider, AppError> {
@@ -48,6 +49,7 @@ pub fn create_provider(
         openai_base_url.as_deref(),
         anthropic_base_url.as_deref(),
         description.as_deref(),
+        preset_id.as_deref(),
     )
 }
 
@@ -73,6 +75,8 @@ pub fn get_provider_keys(
 #[tauri::command]
 pub fn update_provider_metadata(
     id: i64,
+    name: Option<String>,
+    display_name: Option<String>,
     openai_base_url: Option<String>,
     anthropic_base_url: Option<String>,
     description: Option<String>,
@@ -83,6 +87,8 @@ pub fn update_provider_metadata(
     provider_service::update_provider_metadata(
         &db,
         id,
+        name.as_deref(),
+        display_name.as_deref(),
         openai_base_url.as_deref(),
         anthropic_base_url.as_deref(),
         description.as_deref(),

@@ -57,7 +57,8 @@
     "descriptionPlaceholder": "アカウントを区別するための任意の説明",
     "cancel": "キャンセル",
     "save": "保存",
-    "add": "追加"
+    "add": "追加",
+    "newCard": "新しいカードを作成"
   },
   "keyDetail": {
     "back": "戻る",
@@ -67,6 +68,8 @@
     "noDescription": "説明なし",
     "createdAt": "作成日",
     "edit": "編集",
+    "providerName": "名前",
+    "identifier": "識別子",
     "editMetadata": "プロバイダー情報を編集",
     "metadataSaved": "プロバイダー情報を保存しました",
     "delete": "削除",

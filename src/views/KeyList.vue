@@ -35,7 +35,7 @@ function handleSearch(query: string) {
 }
 
 function handleViewGroup(group: KeyGroup) {
-  router.push(`/keys/${group.provider.id}?desc=${encodeURIComponent(group.description)}`)
+  router.push(`/keys/${group.provider.id}`)
 }
 
 async function handleDeleteGroup(group: KeyGroup) {
