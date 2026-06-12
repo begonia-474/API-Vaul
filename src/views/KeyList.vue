@@ -133,6 +133,11 @@ function handleKeyCreated() {
   margin-top: var(--space-4);
   display: flex;
   flex-direction: column;
+}
+
+:deep(.n-spin-content) {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-6);
 }
 </style>
