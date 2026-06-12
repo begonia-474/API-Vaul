@@ -42,7 +42,9 @@ function handleLock() {
   height: var(--header-height);
   padding: 0 var(--space-6);
   border-bottom: 1px solid var(--border-default);
-  background: var(--bg-surface);
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   flex-shrink: 0;
 }
 

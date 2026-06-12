@@ -51,12 +51,21 @@ const displayTitle = props.group.description
 <style scoped>
 .key-card {
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal);
 }
 
-.key-card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+:deep(.n-card) {
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--border-default);
+}
+
+:deep(.n-card:hover) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary), var(--shadow-sm);
+}
+
+:deep(.n-card__content) {
+  padding: var(--space-4) !important;
 }
 
 .card-header {
