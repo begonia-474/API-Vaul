@@ -133,6 +133,6 @@ function handleKeyCreated() {
   margin-top: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 </style>

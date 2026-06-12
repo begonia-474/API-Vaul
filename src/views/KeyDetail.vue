@@ -385,11 +385,11 @@ async function handleAddKey() {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .detail-card {
-  max-width: 800px;
+  width: 100%;
 }
 
 .detail-header {
