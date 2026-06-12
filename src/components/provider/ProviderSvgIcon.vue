@@ -21,6 +21,20 @@ import mistralSvg from '@lobehub/icons-static-svg/icons/mistral-color.svg?raw'
 import openrouterSvg from '@lobehub/icons-static-svg/icons/openrouter.svg?raw'
 import difySvg from '@lobehub/icons-static-svg/icons/dify-color.svg?raw'
 
+// Local provider icons (from cc-switch)
+import metaSvg from '@/icons/provider/meta.svg?raw'
+import perplexitySvg from '@/icons/provider/perplexity.svg?raw'
+import xaiSvg from '@/icons/provider/xai.svg?raw'
+import huggingfaceSvg from '@/icons/provider/huggingface.svg?raw'
+import siliconflowSvg from '@/icons/provider/siliconflow.svg?raw'
+import doubaoSvg from '@/icons/provider/doubao.svg?raw'
+import bailianSvg from '@/icons/provider/bailian.svg?raw'
+import volcengineSvg from '@/icons/provider/volcengine.svg?raw'
+import githubSvg from '@/icons/provider/github.svg?raw'
+import nvidiaSvg from '@/icons/provider/nvidia.svg?raw'
+import xiaomimimoSvg from '@/icons/provider/xiaomimimo.svg?raw'
+import tencentSvg from '@/icons/provider/tencent.svg?raw'
+
 const props = defineProps<{
   presetId: string
   size?: number
@@ -47,6 +61,20 @@ const svgMap: Record<string, string> = {
   mistral: mistralSvg,
   openrouter: openrouterSvg,
   dify: difySvg,
+  // New icons
+  meta: metaSvg,
+  perplexity: perplexitySvg,
+  xai: xaiSvg,
+  huggingface: huggingfaceSvg,
+  siliconflow: siliconflowSvg,
+  doubao: doubaoSvg,
+  bailian: bailianSvg,
+  volcengine: volcengineSvg,
+  volcengine_ark: volcengineSvg,
+  github: githubSvg,
+  nvidia: nvidiaSvg,
+  xiaomimimo: xiaomimimoSvg,
+  tencent_hunyuan: tencentSvg,
 }
 
 // Security: SVG content is from static @lobehub/icons-static-svg imports only (not user input)

@@ -211,6 +211,10 @@ fn seed_missing_providers(conn: &Connection) -> Result<(), Box<dyn std::error::E
         ("baichuan", "百川智能", "🟤", "https://api.baichuan-ai.com/v1", "openai", "baichuan", "cn_official"),
         ("cohere", "Cohere", "🔷", "https://api.cohere.ai/v1", "openai", "cohere", "third_party"),
         ("mistral", "Mistral AI", "🟠", "https://api.mistral.ai/v1", "openai", "mistral", "third_party"),
+        ("openrouter", "OpenRouter", "🌐", "https://openrouter.ai/api/v1", "openai", "openrouter", "aggregator"),
+        ("dify", "Dify", "🧩", "", "openai", "dify", "third_party"),
+        ("tencent_hunyuan", "腾讯混元", "💧", "", "openai", "tencent_hunyuan", "cn_official"),
+        ("volcengine_ark", "火山引擎方舟", "🔥", "https://ark.cn-beijing.volces.com/api/coding/v3", "openai", "volcengine_ark", "cn_official"),
     ];
 
     for (name, display_name, icon, base_url, api_type, preset_id, category) in new_providers {

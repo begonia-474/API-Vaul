@@ -35,11 +35,22 @@ describe('settings store', () => {
   })
 
   it('resolvedTheme returns systemTheme when theme is system', async () => {
+    // Mock matchMedia to simulate a dark system preference
+    const matchMediaSpy = vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
+      matches: query === '(prefers-color-scheme: dark)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
     mockInvoke.mockResolvedValueOnce({ theme: 'system', auto_lock_minutes: 5 })
     const store = useSettingsStore()
     await store.fetchSettings()
-    // systemTheme defaults to 'dark'
     expect(store.resolvedTheme).toBe('dark')
+    matchMediaSpy.mockRestore()
   })
 
   it('updateSettings persists and updates local state', async () => {

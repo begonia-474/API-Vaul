@@ -31,6 +31,19 @@ const presetIdMap: Record<string, string> = {
   mistral: 'mistral',
   openrouter: 'openrouter',
   dify: 'dify',
+  meta: 'meta',
+  perplexity: 'perplexity',
+  xai: 'xai',
+  huggingface: 'huggingface',
+  siliconflow: 'siliconflow',
+  doubao: 'doubao',
+  bailian: 'bailian',
+  volcengine: 'volcengine',
+  volcengine_ark: 'volcengine_ark',
+  github: 'github',
+  nvidia: 'nvidia',
+  xiaomimimo: 'xiaomimimo',
+  tencent_hunyuan: 'tencent_hunyuan',
 }
 
 const resolvedPresetId = computed(() => {

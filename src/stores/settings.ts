@@ -36,7 +36,11 @@ export const useSettingsStore = defineStore('settings', () => {
   function syncSystemTheme() {
     if (typeof window === 'undefined') return
     const mql = window.matchMedia('(prefers-color-scheme: dark)')
-    systemTheme.value = mql.matches ? 'dark' : 'light'
+    // Only trust matchMedia if it actually supports the query
+    if (mql.media !== 'not all') {
+      systemTheme.value = mql.matches ? 'dark' : 'light'
+    }
+    // else keep current default ('dark')
   }
 
   function bindSystemThemeListener() {
