@@ -15,19 +15,34 @@ const isLockScreen = computed(() => route.name === 'LockScreen')
 
 const naiveTheme = computed(() => (settingsStore.resolvedTheme === 'dark' ? darkTheme : undefined))
 
+const isDark = computed(() => settingsStore.resolvedTheme === 'dark')
+
 const themeOverrides = computed<GlobalThemeOverrides>(() => ({
   common: {
     primaryColor: '#6366F1',
     primaryColorHover: '#818CF8',
     primaryColorPressed: '#4F46E5',
-    bodyColor: settingsStore.resolvedTheme === 'dark' ? '#0F1117' : '#F8FAFC',
-    cardColor: settingsStore.resolvedTheme === 'dark' ? '#1A1D2E' : '#FFFFFF',
-    modalColor: settingsStore.resolvedTheme === 'dark' ? '#1A1D2E' : '#FFFFFF',
-    popoverColor: settingsStore.resolvedTheme === 'dark' ? '#1A1D2E' : '#FFFFFF',
-    inputColor: settingsStore.resolvedTheme === 'dark' ? '#252840' : '#F1F5F9',
-    tableColor: settingsStore.resolvedTheme === 'dark' ? '#1A1D2E' : '#FFFFFF',
+    bodyColor: isDark.value ? '#0F1117' : '#FFFFFF',
+    cardColor: isDark.value ? '#1A1D2E' : '#FFFFFF',
+    modalColor: isDark.value ? '#1A1D2E' : '#FFFFFF',
+    popoverColor: isDark.value ? '#1A1D2E' : '#FFFFFF',
+    inputColor: isDark.value ? '#252840' : '#FFFFFF',
+    inputColorFocus: isDark.value ? '#252840' : '#FFFFFF',
+    tableColor: isDark.value ? '#1A1D2E' : '#FFFFFF',
     borderRadius: '8px',
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  },
+  Input: {
+    border: isDark.value ? '1px solid #3A3D52' : '1px solid #D1D5DB',
+    borderHover: isDark.value ? '1px solid #6366F1' : '1px solid #6366F1',
+    borderFocus: isDark.value ? '1px solid #6366F1' : '1px solid #6366F1',
+    boxShadowFocus: '0 0 0 2px rgba(99, 102, 241, 0.15)',
+    caretColor: '#6366F1',
+  },
+  Card: {
+    borderRadius: '8px',
+    borderColor: isDark.value ? '#3A3D52' : '#E5E7EB',
+    boxShadow: isDark.value ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)',
   },
 }))
 

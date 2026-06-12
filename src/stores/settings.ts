@@ -33,17 +33,28 @@ export const useSettingsStore = defineStore('settings', () => {
     applyThemeAttribute(val)
   })
 
-  function bindSystemThemeListener() {
+  function syncSystemTheme() {
     if (typeof window === 'undefined') return
     const mql = window.matchMedia('(prefers-color-scheme: dark)')
     systemTheme.value = mql.matches ? 'dark' : 'light'
-
-    const handler = (event: MediaQueryListEvent) => {
-      systemTheme.value = event.matches ? 'dark' : 'light'
-    }
-
-    mql.addEventListener('change', handler)
   }
+
+  function bindSystemThemeListener() {
+    if (typeof window === 'undefined') return
+    syncSystemTheme()
+
+    const mql = window.matchMedia('(prefers-color-scheme: dark)')
+    mql.addEventListener('change', (event) => {
+      systemTheme.value = event.matches ? 'dark' : 'light'
+    })
+  }
+
+  // Re-check system theme when user switches to 'system'
+  watch(theme, (val) => {
+    if (val === 'system') {
+      syncSystemTheme()
+    }
+  })
 
   async function fetchSettings(): Promise<void> {
     loading.value = true

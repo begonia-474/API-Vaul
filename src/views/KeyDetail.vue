@@ -226,7 +226,7 @@ async function handleAddKey() {
 
         <!-- View mode -->
         <template v-if="!editingProviderInfo">
-          <n-descriptions v-if="provider" bordered :column="1" label-placement="left">
+          <n-descriptions v-if="provider" :column="1" label-placement="left">
             <n-descriptions-item :label="t('keyDetail.providerName')">
               {{ provider.display_name }}
             </n-descriptions-item>
@@ -423,9 +423,7 @@ async function handleAddKey() {
 code {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  background: var(--bg-elevated);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
 }
 
 .url-row {
@@ -459,8 +457,7 @@ code {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .key-info {
@@ -478,9 +475,6 @@ code {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  background: var(--bg-surface);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
 }
 
 .key-actions {
@@ -511,8 +505,6 @@ code {
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-3);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
 }
 
 .edit-field {
