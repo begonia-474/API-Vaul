@@ -44,6 +44,7 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (11, "remove_provider_name_unique", remove_provider_name_unique),
         (12, "seed_new_providers", seed_new_providers),
         (13, "seed_more_providers", seed_more_providers),
+        (14, "remove_duplicate_providers", remove_duplicate_providers),
     ];
 
     let current = current_version(conn);
@@ -437,6 +438,23 @@ fn seed_more_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Erro
                 "INSERT INTO providers (name, display_name, icon, base_url, api_type, preset_id, category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
                 rusqlite::params![name, display_name, icon, base_url, api_type, preset_id, category],
             )?;
+        }
+    }
+
+    Ok(())
+}
+
+fn remove_duplicate_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    // volcengine and doubao are duplicates of volcengine_ark (all Bytedance/Volcengine)
+    for name in &["volcengine", "doubao"] {
+        let key_count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM api_keys WHERE provider_id = (SELECT id FROM providers WHERE name = ?1 LIMIT 1)",
+            [name],
+            |row| row.get(0),
+        ).unwrap_or(0);
+
+        if key_count == 0 {
+            conn.execute("DELETE FROM providers WHERE name = ?1", [name])?;
         }
     }
 

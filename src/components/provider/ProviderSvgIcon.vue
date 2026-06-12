@@ -27,7 +27,6 @@ import perplexitySvg from '@/icons/provider/perplexity.svg?raw'
 import xaiSvg from '@/icons/provider/xai.svg?raw'
 import huggingfaceSvg from '@/icons/provider/huggingface.svg?raw'
 import siliconflowSvg from '@/icons/provider/siliconflow.svg?raw'
-import doubaoSvg from '@/icons/provider/doubao.svg?raw'
 import bailianSvg from '@/icons/provider/bailian.svg?raw'
 import volcengineSvg from '@/icons/provider/volcengine.svg?raw'
 import githubSvg from '@/icons/provider/github.svg?raw'
@@ -67,9 +66,7 @@ const svgMap: Record<string, string> = {
   xai: xaiSvg,
   huggingface: huggingfaceSvg,
   siliconflow: siliconflowSvg,
-  doubao: doubaoSvg,
   bailian: bailianSvg,
-  volcengine: volcengineSvg,
   volcengine_ark: volcengineSvg,
   github: githubSvg,
   nvidia: nvidiaSvg,
