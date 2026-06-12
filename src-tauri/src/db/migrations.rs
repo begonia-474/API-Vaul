@@ -43,6 +43,7 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (10, "remove_seed_custom_provider", remove_seed_custom_provider),
         (11, "remove_provider_name_unique", remove_provider_name_unique),
         (12, "seed_new_providers", seed_new_providers),
+        (13, "seed_more_providers", seed_more_providers),
     ];
 
     let current = current_version(conn);
@@ -408,6 +409,38 @@ fn remove_seed_custom_provider(conn: &Connection) -> Result<(), Box<dyn std::err
 
 fn seed_new_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
     seed_missing_providers(conn)
+}
+
+fn seed_more_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    let providers: Vec<(&str, &str, &str, &str, &str, &str, &str)> = vec![
+        ("meta", "Meta", "🦙", "https://api.meta.ai/v1", "openai", "meta", "official"),
+        ("perplexity", "Perplexity", "🔎", "https://api.perplexity.ai", "openai", "perplexity", "third_party"),
+        ("xai", "xAI (Grok)", "❌", "https://api.x.ai/v1", "openai", "xai", "official"),
+        ("huggingface", "Hugging Face", "🤗", "https://api-inference.huggingface.co", "openai", "huggingface", "third_party"),
+        ("siliconflow", "SiliconFlow", "🌊", "https://api.siliconflow.cn/v1", "openai", "siliconflow", "third_party"),
+        ("doubao", "豆包 (字节)", "🫘", "https://ark.cn-beijing.volces.com/api/v3", "openai", "doubao", "cn_official"),
+        ("bailian", "百炼 (阿里)", "🔶", "https://dashscope.aliyuncs.com/compatible-mode/v1", "openai", "bailian", "cn_official"),
+        ("volcengine", "火山引擎", "🌋", "https://ark.cn-beijing.volces.com/api/coding/v3", "openai", "volcengine", "cn_official"),
+    ];
+
+    for (name, display_name, icon, base_url, api_type, preset_id, category) in providers {
+        let exists: bool = conn
+            .query_row(
+                "SELECT COUNT(*) FROM providers WHERE name = ?1",
+                [name],
+                |row| Ok(row.get::<_, i64>(0)? > 0),
+            )
+            .unwrap_or(false);
+
+        if !exists {
+            conn.execute(
+                "INSERT INTO providers (name, display_name, icon, base_url, api_type, preset_id, category) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                rusqlite::params![name, display_name, icon, base_url, api_type, preset_id, category],
+            )?;
+        }
+    }
+
+    Ok(())
 }
 
 fn remove_provider_name_unique(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
