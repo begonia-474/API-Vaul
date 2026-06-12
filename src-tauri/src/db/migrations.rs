@@ -42,6 +42,7 @@ pub fn run(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
         (9, "migrate_provider_metadata", migrate_provider_metadata),
         (10, "remove_seed_custom_provider", remove_seed_custom_provider),
         (11, "remove_provider_name_unique", remove_provider_name_unique),
+        (12, "seed_new_providers", seed_new_providers),
     ];
 
     let current = current_version(conn);
@@ -403,6 +404,10 @@ fn remove_seed_custom_provider(conn: &Connection) -> Result<(), Box<dyn std::err
     }
 
     Ok(())
+}
+
+fn seed_new_providers(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
+    seed_missing_providers(conn)
 }
 
 fn remove_provider_name_unique(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
